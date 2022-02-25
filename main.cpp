@@ -1,8 +1,7 @@
 
 /**
- * @brief - Canonical application allowing to instantiate
- *          a working PGE process with configurable hooks
- *          to customize the behavior.
+ * @brief - Defines an application for an open-world cell
+ *          game with discrete, grid-like coordinates.
  */
 
 # include <core_utils/StdLogger.hh>
