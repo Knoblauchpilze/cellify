@@ -4,6 +4,7 @@
 # include <vector>
 # include <memory>
 # include <core_utils/CoreObject.hh>
+# include "World.hh"
 
 namespace pge {
 
@@ -17,8 +18,9 @@ namespace pge {
 
       /**
        * @brief - Create a new game with default parameters.
+       * @param world - the world attached to this game.
        */
-      Game();
+      Game(cellify::WorldShPtr world);
 
       ~Game();
 
@@ -158,6 +160,11 @@ namespace pge {
        * @brief - The definition of the game state.
        */
       State m_state;
+
+      /**
+       * @brief - The world attached to the game.
+       */
+      cellify::WorldShPtr m_world;
   };
 
   using GameShPtr = std::shared_ptr<Game>;

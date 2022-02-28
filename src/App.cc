@@ -11,7 +11,9 @@ namespace pge {
     m_state(nullptr),
     m_menus(),
 
-    m_packs(std::make_shared<TexturePack>())
+    m_packs(std::make_shared<TexturePack>()),
+
+    m_world(std::make_shared<cellify::World>())
   {}
 
   bool
@@ -74,7 +76,7 @@ namespace pge {
     log("Load app data as needed", utils::Level::Info);
 
     // Create the game and its state.
-    m_game = std::make_shared<Game>();
+    m_game = std::make_shared<Game>(m_world);
   }
 
   void

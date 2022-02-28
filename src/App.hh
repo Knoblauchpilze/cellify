@@ -6,6 +6,7 @@
 # include "Menu.hh"
 # include "Game.hh"
 # include "GameState.hh"
+# include "World.hh"
 
 namespace pge {
 
@@ -134,6 +135,11 @@ namespace pge {
        *          the elements of the game.
        */
       TexturePackShPtr m_packs;
+
+      /**
+       * @brief - The world managed by the app.
+       */
+      cellify::WorldShPtr m_world;
   };
 
 }

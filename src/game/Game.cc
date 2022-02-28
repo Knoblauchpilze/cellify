@@ -5,7 +5,7 @@
 
 namespace pge {
 
-  Game::Game():
+  Game::Game(cellify::WorldShPtr world):
     utils::CoreObject("game"),
 
     m_state(
@@ -14,7 +14,9 @@ namespace pge {
         true,  // disabled
         false, // terminated
       }
-    )
+    ),
+
+    m_world(world)
   {
     setService("game");
   }
