@@ -91,6 +91,8 @@ namespace pge {
     // transparent but that's the only way
     // for now to achieve it.
     setLayerTint(Layer::Draw, olc::Pixel(255, 255, 255, alpha::SemiOpaque));
+
+    log("Load app resources in the 'm_packs' attribute", utils::Level::Info);
   }
 
   void
@@ -98,15 +100,17 @@ namespace pge {
     // Generate the game state.
     m_state = std::make_shared<GameState>(
       olc::vi2d(ScreenWidth(), ScreenHeight()),
-      Screen::Home
+      Screen::Game
     );
 
-    log("Generate menus and register them in the 'm_menus' attribute", utils::Level::Info);
+    m_menus = m_game->generateMenus(ScreenWidth(), ScreenHeight());
   }
 
   void
   App::cleanResources() {
-    log("Clean app data as needed", utils::Level::Info);
+    if (m_packs != nullptr) {
+      m_packs.reset();
+    }
   }
 
   void
@@ -118,7 +122,7 @@ namespace pge {
   App::drawDecal(const RenderDesc& /*res*/) {
     // Clear rendering target.
     SetPixelMode(olc::Pixel::ALPHA);
-    Clear(olc::VERY_DARK_GREY);
+    Clear(olc::BLACK);
 
     // In case we're not in the game screen, do nothing.
     if (m_state->getScreen() != Screen::Game) {

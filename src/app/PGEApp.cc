@@ -12,7 +12,8 @@ namespace pge {
     m_dLayer(0u),
     m_uiLayer(0u),
 
-    m_debugOn(true),
+    // Deactivate debug by default.
+    m_debugOn(false),
     m_uiOn(true),
 
     m_controls(controls::newState()),

@@ -15,18 +15,6 @@ namespace pge {
   }
 
   inline
-  void
-  PGEApp::loadResources() {}
-
-  inline
-  void
-  PGEApp::loadMenuResources() {}
-
-  inline
-  void
-  PGEApp::cleanResources() {}
-
-  inline
   bool
   PGEApp::isFirstFrame() const noexcept {
     return m_first;
