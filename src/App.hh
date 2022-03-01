@@ -110,6 +110,12 @@ namespace pge {
       drawRect(const SpriteDesc& t,
                const CoordinateFrame& cf);
 
+      void
+      drawWorld(const RenderDesc& res) noexcept;
+
+      void
+      drawOverlays(const RenderDesc& res) noexcept;
+
     private:
 
       /**

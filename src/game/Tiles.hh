@@ -1,6 +1,7 @@
 #ifndef    TILES_HH
 # define   TILES_HH
 
+# include <vector>
 # include <maths_utils/Point2.hh>
 
 namespace cellify {
@@ -22,6 +23,9 @@ namespace cellify {
     // The position of the item.
     utils::Point2i pos;
   };
+
+  /// @brief - Convenience define to handle a list of cells.
+  using Cells = std::vector<Cell>;
 
 }
 

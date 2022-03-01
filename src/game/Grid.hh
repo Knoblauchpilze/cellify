@@ -2,8 +2,10 @@
 # define   GRID_HH
 
 # include <vector>
+# include <memory>
 # include <maths_utils/Point2.hh>
 # include <core_utils/CoreObject.hh>
+# include <core_utils/RNG.hh>
 # include "Tiles.hh"
 
 namespace cellify {
@@ -13,8 +15,10 @@ namespace cellify {
 
       /**
        * @brief - Creates a new infinite grid with no elements.
+       * @param rng - a random number generator to use to create
+       *              the grid and initialize it.
        */
-      Grid();
+      Grid(utils::RNG& rng);
 
       /**
        * @brief - Returns the minimum extent of the grid.
@@ -32,13 +36,21 @@ namespace cellify {
       utils::Point2i
       max() const noexcept;
 
+      /**
+       * @brief - Returns the list of cells defined in the world.
+       * @return - the list of cells defined in the world.
+       */
+      const Cells&
+      cells() const noexcept;
+
     private:
 
       /**
        * @brief - Generate a random grid.
+       * @param rng - a randomness generator.
        */
       void
-      initialize() noexcept;
+      initialize(utils::RNG& rng) noexcept;
 
     private:
 
@@ -62,6 +74,7 @@ namespace cellify {
       std::vector<Cell> m_cells;
   };
 
+  using GridShPtr = std::shared_ptr<Grid>;
 }
 
 #endif    /* GRID_HH */

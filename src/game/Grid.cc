@@ -3,7 +3,7 @@
 
 namespace cellify {
 
-  Grid::Grid():
+  Grid::Grid(utils::RNG& rng):
     utils::CoreObject("grid"),
 
     m_min(),
@@ -13,7 +13,7 @@ namespace cellify {
   {
     setService("cellify");
 
-    initialize();
+    initialize(rng);
   }
 
   utils::Point2i
@@ -26,10 +26,26 @@ namespace cellify {
     return m_max;
   }
 
+  const Cells&
+  Grid::cells() const noexcept {
+    return m_cells;
+  }
+
   void
-  Grid::initialize() noexcept {
-    /// TODO: Handle this.
-    warn("Should generate grid");
+  Grid::initialize(utils::RNG& rng) noexcept {
+    static const int size = 50;
+    static const int count = 25;
+
+    for (int id = 0 ; id < count ; ++id) {
+      Cell c;
+
+      c.item = static_cast<Tile>(id % 3);
+
+      c.pos.x() = rng.rndInt(-size / 2, size / 2);
+      c.pos.y() = rng.rndInt(-size / 2, size / 2);
+
+      m_cells.push_back(c);
+    }
   }
 
 }

@@ -2,6 +2,24 @@
 # include "App.hh"
 # include <maths_utils/ComparisonUtils.hh>
 
+namespace {
+
+  olc::Pixel
+  colorFromTile(const cellify::Tile& t) noexcept {
+    switch (t) {
+      case cellify::Tile::Colony:
+        return olc::YELLOW;
+      case cellify::Tile::Ant:
+        return olc::BLUE;
+      case cellify::Tile::Food:
+        return olc::GREEN;
+      default:
+        // Error case.
+        return olc::RED;
+    }
+  }
+}
+
 namespace pge {
 
   App::App(const AppDesc& desc):
@@ -121,7 +139,7 @@ namespace pge {
   }
 
   void
-  App::drawDecal(const RenderDesc& /*res*/) {
+  App::drawDecal(const RenderDesc& res) {
     // Clear rendering target.
     SetPixelMode(olc::Pixel::ALPHA);
     Clear(olc::BLACK);
@@ -131,6 +149,9 @@ namespace pge {
       SetPixelMode(olc::Pixel::NORMAL);
       return;
     }
+
+    drawWorld(res);
+    drawOverlays(res);
 
     SetPixelMode(olc::Pixel::NORMAL);
   }
@@ -200,6 +221,67 @@ namespace pge {
     DrawString(olc::vi2d(0, h / 2 + 2 * dOffset), "Intra cell        : " + toString(it), olc::CYAN);
 
     SetPixelMode(olc::Pixel::NORMAL);
+  }
+
+  void
+  App::drawWorld(const RenderDesc& res) noexcept {
+    SpriteDesc sd = {};
+    sd.loc = pge::RelativePosition::Center;
+    sd.radius = 1.0f;
+
+    // Traverse the list of elements of the world.
+    const cellify::Grid& g = m_world->grid();
+    const cellify::Cells& cs = g.cells();
+
+    const Viewport& tvp = res.cf.cellsViewport();
+    olc::vf2d min = tvp.p;
+    olc::vf2d max = tvp.p + tvp.dims;
+
+    // Utility function to check the visibility of a
+    // point based on the view frustum.
+    auto visible = [&min, &max](const utils::Point2i& p, float radius) {
+      if (p.x() + radius < min.x || p.x() - radius > max.x) {
+        return false;
+      }
+
+      if (p.y() + radius < min.y || p.y() - radius > max.y) {
+        return false;
+      }
+
+      return true;
+    };
+
+    for (unsigned id = 0u ; id < cs.size() ; ++id) {
+      const cellify::Cell& c = cs[id];
+
+      // Ignore items outside of the view frustum.
+      if (!visible(c.pos, 0.0f)) {
+        continue;
+      }
+
+      sd.x = 1.0f * c.pos.x();
+      sd.y = 1.0f * c.pos.y();
+
+      sd.sprite.tint = colorFromTile(c.item);
+      drawRect(sd, res.cf);
+    }
+  }
+
+  void
+  App::drawOverlays(const RenderDesc& res) noexcept {
+    SpriteDesc sd = {};
+    sd.loc = pge::RelativePosition::Center;
+    sd.radius = 1.0f;
+
+    // Draw the overlay of the mouse position.
+    olc::vi2d mp = GetMousePos();
+    olc::vi2d mtp = res.cf.pixelCoordsToTiles(mp, nullptr);
+
+    sd.x = mtp.x;
+    sd.y = mtp.y;
+
+    sd.sprite.tint = olc::Pixel(0, 255, 0, pge::alpha::AlmostTransparent);
+    drawRect(sd, res.cf);
   }
 
 }

@@ -24,9 +24,15 @@ namespace cellify {
     private:
 
       /**
+       * @brief - The random number generator used by this
+       *          world.
+       */
+      utils::RNG m_rng;
+
+      /**
        * @brief - The grid associated to the world.
        */
-      Grid m_grid;
+      GridShPtr m_grid;
   };
 
   using WorldShPtr = std::shared_ptr<World>;
