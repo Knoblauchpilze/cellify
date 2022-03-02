@@ -41,13 +41,14 @@ namespace pge {
   }
 
   bool
-  Game::step(float /*tDelta*/) {
+  Game::step(float tDelta) {
     // When the game is paused it is not over yet.
     if (m_state.paused) {
       return true;
     }
 
-    log("Perform step method of the game", utils::Level::Info);
+    // Step the world.
+    m_world->step(tDelta);
 
     updateUI();
 

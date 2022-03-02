@@ -20,4 +20,9 @@ namespace cellify {
     return *m_grid;
   }
 
+  void
+  World::step(float /*tDelta*/) {
+    /// TODO: Handle this.
+  }
+
 }

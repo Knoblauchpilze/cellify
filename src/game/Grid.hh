@@ -43,6 +43,45 @@ namespace cellify {
       const Cells&
       cells() const noexcept;
 
+      /**
+       * @brief - Returns the element at the specified index.
+       * @param id - the index of the element to fetch.
+       * @return - the element or an error in case the index
+       *           is not valid.
+       */
+      const Cell&
+      at(unsigned id) const;
+
+      /**
+       * @brief - Query whether the input cell contains an
+       *          element. If not, the return value is a
+       *          negative element.
+       * @param x - the x coordinate to check.
+       * @param y - the y coordinate to check.
+       * @param includeMobs - `true` if mobs should also be
+       *                      checked when searching for an
+       *                      item at the position.
+       * @return - a positive or null value indicating the
+       *           index to use to query the element at the
+       *           specified coordinate or a negative value
+       *           in case the cell is empty.
+       */
+      int
+      at(int x, int y, bool includeMobs = false) const noexcept;
+
+      /**
+       * @brief - Determine whether the input coordinates are
+       *          obstructed. Internally the above method is
+       *          called.
+       * @param x - the abscissa to check for obstruction.
+       * @param y - the ordinate to check for obstruction.
+       * @param includeMobs - `true` in case the obstruction
+       *                      should also include mobs.
+       * @return - `true` if the location is occupied.
+       */
+      bool
+      obstructed(int x, int y, bool includeMobs = false) const noexcept;
+
     private:
 
       /**

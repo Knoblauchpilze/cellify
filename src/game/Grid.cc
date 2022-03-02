@@ -31,6 +31,42 @@ namespace cellify {
     return m_cells;
   }
 
+  const Cell&
+  Grid::at(unsigned id) const {
+    if (id > m_cells.size()) {
+      error(
+        "Failed to fetch item " + std::to_string(id),
+        "Only " + std::to_string(id) + " registered"
+      );
+    }
+
+    return m_cells[id];
+  }
+
+  int
+  Grid::at(int x, int y, bool includeMobs) const noexcept {
+    /// TODO: Optimize the search for elements.
+    unsigned id = 0u;
+
+    while (id < m_cells.size()) {
+      const Cell& c = m_cells[id];
+
+      bool coordsMatch = (c.pos.x() == x && c.pos.y() == y);
+      if (coordsMatch && (includeMobs || c.item != Tile::Ant)) {
+        return static_cast<int>(id);
+      }
+
+      ++id;
+    }
+
+    return -1;
+  }
+
+  bool
+  Grid::obstructed(int x, int y, bool includeMobs) const noexcept {
+    return at(x, y, includeMobs) >= 0;
+  }
+
   void
   Grid::initialize(utils::RNG& rng) noexcept {
     static const int size = 50;

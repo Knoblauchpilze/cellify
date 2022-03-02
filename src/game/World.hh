@@ -21,6 +21,16 @@ namespace cellify {
       const Grid&
       grid() const noexcept;
 
+      /**
+       * @brief - Used to move one step ahead in time in this
+       *          world, given that `tDelta` represents the
+       *          duration of the last frame in seconds.
+       * @param tDelta - the duration of the last frame in
+       *                 seconds.
+       */
+      void
+      step(float tDelta);
+
     private:
 
       /**
