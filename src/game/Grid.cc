@@ -67,6 +67,11 @@ namespace cellify {
     return at(x, y, includeMobs) >= 0;
   }
 
+  bool
+  Grid::obstructed(const utils::Point2i& p, bool includeMobs) const noexcept {
+    return obstructed(p.x(), p.y(), includeMobs);
+  }
+
   void
   Grid::initialize(utils::RNG& rng) noexcept {
     static const int size = 50;

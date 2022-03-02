@@ -82,6 +82,19 @@ namespace cellify {
       bool
       obstructed(int x, int y, bool includeMobs = false) const noexcept;
 
+      /**
+       * @brief - Determine whether the input coordinates are
+       *          obstructed. Internally the above method is
+       *          called.
+       * @param p - the coordinates to check for obstruction.
+       * @param y - the ordinate to check for obstruction.
+       * @param includeMobs - `true` in case the obstruction
+       *                      should also include mobs.
+       * @return - `true` if the location is occupied.
+       */
+      bool
+      obstructed(const utils::Point2i& p, bool includeMobs = false) const noexcept;
+
     private:
 
       /**
