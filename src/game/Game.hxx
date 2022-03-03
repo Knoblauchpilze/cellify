@@ -26,6 +26,8 @@ namespace pge {
       return;
     }
 
+    m_world->pause();
+
     log("Game is now paused", utils::Level::Info);
     m_state.paused = true;
   }
@@ -37,6 +39,8 @@ namespace pge {
     if (!m_state.paused) {
       return;
     }
+
+    m_world->resume();
 
     log("Game is now resumed", utils::Level::Info);
     m_state.paused = false;
