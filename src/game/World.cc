@@ -23,13 +23,33 @@ namespace cellify {
   }
 
   void
-  World::step(float /*tDelta*/) {
+  World::step(float tDelta) {
     // Disable step in case the world is in pause.
     if (m_paused) {
       return;
     }
 
-    /// TODO: Handle this.
+    StepInfo si{
+      m_rng,         // rng
+
+      utils::now(),  // moment
+      tDelta,        // elapsed
+    };
+
+    // Simulate elements.
+    for (unsigned id = 0u ; id < m_grid->size() ; ++id) {
+      m_grid->at(id).step(si);
+    }
+
+    // Process influences.
+    for (unsigned id = 0u ; id < si.spawned.size() ; ++id) {
+      m_grid->spawn(si.spawned[id]);
+    }
+
+    // Perform the update of the grid (this step
+    // includes deleting the elements marked for
+    // deletion, etc).
+    m_grid->update();
   }
 
   void
@@ -39,7 +59,11 @@ namespace cellify {
       return;
     }
 
-    /// TODO: Handle this.
+    utils::TimeStamp n = utils::now();
+
+    for (unsigned id = 0u ; id < m_grid->size() ; ++id) {
+      m_grid->at(id).pause(n);
+    }
 
     m_paused = true;
   }
@@ -51,7 +75,11 @@ namespace cellify {
       return;
     }
 
-    /// TODO: Handle this.
+    utils::TimeStamp n = utils::now();
+
+    for (unsigned id = 0u ; id < m_grid->size() ; ++id) {
+      m_grid->at(id).resume(n);
+    }
 
     m_paused = false;
   }

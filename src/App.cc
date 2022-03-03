@@ -230,23 +230,22 @@ namespace pge {
     sd.radius = 1.0f;
 
     const cellify::Grid& g = m_world->grid();
-    const cellify::Cells& cs = g.cells();
 
     const Viewport& tvp = res.cf.cellsViewport();
 
     // Traverse the list of elements of the world.
-    for (unsigned id = 0u ; id < cs.size() ; ++id) {
-      const cellify::Cell& c = cs[id];
+    for (unsigned id = 0u ; id < g.size() ; ++id) {
+      const cellify::Element& e = g.at(id);
 
       // Ignore items outside of the view frustum.
-      if (!tvp.visible(c.pos, 0.0f)) {
+      if (!tvp.visible(e.pos(), 0.0f)) {
         continue;
       }
 
-      sd.x = 1.0f * c.pos.x();
-      sd.y = 1.0f * c.pos.y();
+      sd.x = 1.0f * e.pos().x();
+      sd.y = 1.0f * e.pos().y();
 
-      sd.sprite.tint = colorFromTile(c.item);
+      sd.sprite.tint = colorFromTile(e.type());
       drawRect(sd, res.cf);
     }
   }

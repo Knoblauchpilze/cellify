@@ -7,6 +7,8 @@
 # include <core_utils/CoreObject.hh>
 # include <core_utils/RNG.hh>
 # include "Tiles.hh"
+# include "StepInfo.hh"
+# include "Element.hh"
 
 namespace cellify {
 
@@ -37,11 +39,12 @@ namespace cellify {
       max() const noexcept;
 
       /**
-       * @brief - Returns the list of cells defined in the world.
-       * @return - the list of cells defined in the world.
+       * @brief - Returns the number of elements registered in
+       *          the grid at the moment.
+       * @return - the number of elements defined in the world.
        */
-      const Cells&
-      cells() const noexcept;
+      unsigned
+      size() const noexcept;
 
       /**
        * @brief - Returns the element at the specified index.
@@ -49,7 +52,16 @@ namespace cellify {
        * @return - the element or an error in case the index
        *           is not valid.
        */
-      const Cell&
+      Element&
+      at(unsigned id);
+
+      /**
+       * @brief - Returns the element at the specified index.
+       * @param id - the index of the element to fetch.
+       * @return - the element or an error in case the index
+       *           is not valid.
+       */
+      const Element&
       at(unsigned id) const;
 
       /**
@@ -95,6 +107,21 @@ namespace cellify {
       bool
       obstructed(const utils::Point2i& p, bool includeMobs = false) const noexcept;
 
+      /**
+       * @brief - Spawns a new element in the grid and register
+       *          it into the internal structure.
+       * @param elem - the element to spawn.
+       */
+      void
+      spawn(ElementShPtr elem);
+
+      /**
+       * @brief - Update the grid and remove elements which have
+       *          been marked for deletion.
+       */
+      void
+      update() noexcept;
+
     private:
 
       /**
@@ -123,7 +150,7 @@ namespace cellify {
       /**
        * @brief - The list of elements registered in the grid.
        */
-      std::vector<Cell> m_cells;
+      std::vector<ElementShPtr> m_cells;
   };
 
   using GridShPtr = std::shared_ptr<Grid>;

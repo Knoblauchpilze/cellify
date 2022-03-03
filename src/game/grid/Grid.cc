@@ -11,7 +11,7 @@ namespace cellify {
 
     m_cells()
   {
-    setService("cellify");
+    setService("game");
 
     initialize(rng);
   }
@@ -26,12 +26,24 @@ namespace cellify {
     return m_max;
   }
 
-  const Cells&
-  Grid::cells() const noexcept {
-    return m_cells;
+  unsigned
+  Grid::size() const noexcept {
+    return m_cells.size();
   }
 
-  const Cell&
+  Element&
+  Grid::at(unsigned id) {
+    if (id > m_cells.size()) {
+      error(
+        "Failed to fetch item " + std::to_string(id),
+        "Only " + std::to_string(id) + " registered"
+      );
+    }
+
+    return *m_cells[id];
+  }
+
+  const Element&
   Grid::at(unsigned id) const {
     if (id > m_cells.size()) {
       error(
@@ -40,7 +52,7 @@ namespace cellify {
       );
     }
 
-    return m_cells[id];
+    return *m_cells[id];
   }
 
   int
@@ -49,10 +61,10 @@ namespace cellify {
     unsigned id = 0u;
 
     while (id < m_cells.size()) {
-      const Cell& c = m_cells[id];
+      const ElementShPtr& c = m_cells[id];
 
-      bool coordsMatch = (c.pos.x() == x && c.pos.y() == y);
-      if (coordsMatch && (includeMobs || c.item != Tile::Ant)) {
+      bool coordsMatch = (c->pos().x() == x && c->pos().y() == y);
+      if (coordsMatch && (includeMobs || c->type() != Tile::Ant)) {
         return static_cast<int>(id);
       }
 
@@ -73,19 +85,35 @@ namespace cellify {
   }
 
   void
+  Grid::spawn(ElementShPtr elem) {
+    if (elem == nullptr) {
+      error(
+        "Failed to spawn element in grid",
+        "Invalid null element"
+      );
+    }
+
+    m_cells.push_back(elem);
+  }
+
+  void
+  Grid::update() noexcept {
+    /// TODO: Handle the update and deletion of elements.
+  }
+
+  void
   Grid::initialize(utils::RNG& rng) noexcept {
     static const int size = 50;
     static const int count = 25;
 
     for (int id = 0 ; id < count ; ++id) {
-      Cell c;
+      Tile t = static_cast<Tile>(id % 3);
 
-      c.item = static_cast<Tile>(id % 3);
+      utils::Point2i pos;
+      pos.x() = rng.rndInt(-size / 2, size / 2);
+      pos.y() = rng.rndInt(-size / 2, size / 2);
 
-      c.pos.x() = rng.rndInt(-size / 2, size / 2);
-      c.pos.y() = rng.rndInt(-size / 2, size / 2);
-
-      m_cells.push_back(c);
+      m_cells.push_back(std::make_shared<Element>(t, pos));
     }
   }
 
