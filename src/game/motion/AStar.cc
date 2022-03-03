@@ -9,9 +9,9 @@
 namespace {
 
   bool
-  maximumDistanceTo(const cellify::Path& path,
-                    const utils::Point2i& p,
-                    float d) noexcept
+  pathTooFar(const cellify::Path& path,
+             const utils::Point2i& p,
+             float d) noexcept
   {
     // In case the `radius` is negative, consider
     // that there's no limit.
@@ -19,15 +19,15 @@ namespace {
       return false;
     }
 
-    bool valid = true;
+    bool bounded = false;
     unsigned id = 0u;
 
-    while (id < path.length() && valid) {
-      valid = (utils::d(p, path[id]) < d);
+    while (id < path.length() && bounded) {
+      bounded = (utils::d(p, path[id]) > d);
       ++id;
     }
 
-    return valid;
+    return bounded;
   }
 
 }
@@ -36,7 +36,7 @@ namespace cellify {
 
   AStar::AStar(const utils::Point2i& s,
                const utils::Point2i& e,
-               GridShPtr grid):
+               const Grid& grid):
     utils::CoreObject("algo"),
 
     m_start(s),
@@ -98,7 +98,7 @@ namespace cellify {
         // Only consider the node if it is not obstructed.
         // Note that if the node is the target, we also do
         // not consider whether it's obstructed.
-        if (m_grid->obstructed(neighbor.p()) && !neighbor.contains(m_end)) {
+        if (m_grid.obstructed(neighbor.p()) && !neighbor.contains(m_end)) {
           continue;
         }
 
@@ -136,7 +136,7 @@ namespace cellify {
     // limit at any point: if this is the case we
     // will prevent it from being returned as we do
     // not consider it valid.
-    if (!maximumDistanceTo(out, m_start, radius)) {
+    if (pathTooFar(out, m_start, radius)) {
       return false;
     }
 

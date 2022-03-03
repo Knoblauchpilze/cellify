@@ -27,7 +27,16 @@ namespace cellify {
 
   void
   AStarNodes::seed(const utils::Point2i& p, float heuristic) noexcept {
+    // Clear data.
+    m_openNodes.clear();
+    m_ancestors.clear();
+
+    // Register the node as an opened node.
     m_openNodes.push_back(Node(p, 0.0f, heuristic));
+
+    // And register this node as its own ancestor.
+    std::string h = hash(p);
+    m_ancestors[h] = std::make_pair(h, 0.0f);
   }
 
   bool
@@ -46,6 +55,7 @@ namespace cellify {
     if (!exist) {
       m_ancestors[cHash] = std::make_pair(pHash, child.cost());
       m_openNodes.push_back(child);
+      m_sorted = false;
     }
     // Otherwise the new association should have a better
     // cost than the currently registered one to be used
@@ -77,6 +87,8 @@ namespace cellify {
       };
 
       std::sort(m_openNodes.begin(), m_openNodes.end(), cmp);
+
+      m_sorted = true;
     }
 
 
@@ -98,7 +110,9 @@ namespace cellify {
     std::string h = hash(end);
 
     Ancestors::const_iterator it = m_ancestors.find(h);
-    while (it != m_ancestors.cend()) {
+    bool foundRoot = false;
+
+    while (it != m_ancestors.cend() && !foundRoot) {
       // Unhash the current position.
       utils::Point2i p = unhash(h);
 
@@ -115,6 +129,7 @@ namespace cellify {
       out.add(p, false);
 
       // Move to the parents if any.
+      foundRoot = (h == it->second.first);
       h = it->second.first;
       it = m_ancestors.find(h);
     }

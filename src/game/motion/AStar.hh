@@ -24,7 +24,7 @@ namespace cellify {
        */
       AStar(const utils::Point2i& s,
             const utils::Point2i& e,
-            GridShPtr grid);
+            const Grid& grid);
 
       /**
        * @brief - Used to generate the path from the starting position
@@ -77,7 +77,7 @@ namespace cellify {
        * @brief - A grid allowing to determine whether a cell is
        *          obstructed.
        */
-      GridShPtr m_grid;
+      const Grid& m_grid;
   };
 
 }
