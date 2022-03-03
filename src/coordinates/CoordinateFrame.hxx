@@ -34,7 +34,7 @@ namespace pge {
   void
   CoordinateFrame::beginTranslation(const olc::vi2d& origin) {
     m_translationOrigin = origin;
-    m_cachedPOrigin = m_pViewport.p;
+    m_cachedPOrigin = m_pViewport.topLeft();
   }
 
   inline
@@ -44,7 +44,7 @@ namespace pge {
     // the input `pos` assuming that this will be
     // the final position of the viewport.
     olc::vf2d translation = pos - m_translationOrigin;
-    m_pViewport.p = m_cachedPOrigin + translation;
+    m_pViewport.topLeft() = m_cachedPOrigin + translation;
   }
 
   inline
@@ -59,14 +59,14 @@ namespace pge {
     // and we should be good to go: indeed if a
     // viewport has its span reduced, distances
     // are lengthened (and conversely).
-    olc::vf2d d = m_pViewport.p - pos;
+    olc::vf2d d = m_pViewport.topLeft() - pos;
     d /= factor;
 
-    m_pViewport.p = pos + d;
+    m_pViewport.topLeft() = pos + d;
 
     // Also update the dimensions of the cells
     // viewport by `factor`.
-    m_cViewport.dims *= factor;
+    m_cViewport.dims() *= factor;
 
     updateTileScale();
   }

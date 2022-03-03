@@ -229,33 +229,17 @@ namespace pge {
     sd.loc = pge::RelativePosition::Center;
     sd.radius = 1.0f;
 
-    // Traverse the list of elements of the world.
     const cellify::Grid& g = m_world->grid();
     const cellify::Cells& cs = g.cells();
 
     const Viewport& tvp = res.cf.cellsViewport();
-    olc::vf2d min = tvp.p;
-    olc::vf2d max = tvp.p + tvp.dims;
 
-    // Utility function to check the visibility of a
-    // point based on the view frustum.
-    auto visible = [&min, &max](const utils::Point2i& p, float radius) {
-      if (p.x() + radius < min.x || p.x() - radius > max.x) {
-        return false;
-      }
-
-      if (p.y() + radius < min.y || p.y() - radius > max.y) {
-        return false;
-      }
-
-      return true;
-    };
-
+    // Traverse the list of elements of the world.
     for (unsigned id = 0u ; id < cs.size() ; ++id) {
       const cellify::Cell& c = cs[id];
 
       // Ignore items outside of the view frustum.
-      if (!visible(c.pos, 0.0f)) {
+      if (!tvp.visible(c.pos, 0.0f)) {
         continue;
       }
 

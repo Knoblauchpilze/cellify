@@ -17,15 +17,16 @@ namespace pge {
     // From there we can convert the position
     // `(0, 0)` in pixels to tiles.
     olc::vi2d tl = pixelCoordsToTiles(olc::vi2d(0, 0));
-    olc::vi2d br = pixelCoordsToTiles(olc::vi2d(m_pViewport.dims.x, m_pViewport.dims.y));
+    olc::vi2d br = pixelCoordsToTiles(olc::vi2d(m_pViewport.dims().x, m_pViewport.dims().y));
 
-    Viewport out;
-    out.p = tl;
-    // The `+1` comes from the fact that the
-    // `br.x - tl.x` accounts for the number
-    // of tiles in difference but does not
-    // count the actual `tl.x` tile.
-    out.dims = olc::vf2d(br.x - tl.x + 1, br.y - tl.y + 1);
+    Viewport out(
+      tl,
+      // The `+1` comes from the fact that the
+      // `br.x - tl.x` accounts for the number
+      // of tiles in difference but does not
+      // count the actual `tl.x` tile.
+      olc::vf2d(br.x - tl.x + 1, br.y - tl.y + 1)
+    );
 
     return out;
   }
@@ -38,14 +39,14 @@ namespace pge {
   {
     // Offset the input coordinates based on the
     // current position of the cell's viewport.
-    x -= m_cViewport.p.x;
-    y -= m_cViewport.p.y;
+    x -= m_cViewport.topLeft().x;
+    y -= m_cViewport.topLeft().y;
 
     // Convert to top view coordinates: we just
     // need to scale by the tile size.
     olc::vf2d tp(
-      m_pViewport.p.x + x * m_tScaled.x,
-      m_pViewport.p.y + y * m_tScaled.y
+      m_pViewport.topLeft().x + x * m_tScaled.x,
+      m_pViewport.topLeft().y + y * m_tScaled.y
     );
 
     // Account for the relative position of the
@@ -76,8 +77,8 @@ namespace pge {
     // case of negative values where for example coords
     // `(-0.5, -0.5)` should be interpreted as belonging
     // to the cell `(-1, -1)`.
-    float pox = pixels.x - m_pViewport.p.x;
-    float poy = pixels.y - m_pViewport.p.y;
+    float pox = pixels.x - m_pViewport.topLeft().x;
+    float poy = pixels.y - m_pViewport.topLeft().y;
 
     float ftx = pox / m_tScaled.x;
     float fty = poy / m_tScaled.y;
@@ -87,7 +88,7 @@ namespace pge {
     // is what is meant by the cells' offset.
     // Note that as we allow decimal coordinates, we
     // need to handle the rounding.
-    olc::vf2d frt(ftx + m_cViewport.p.x, fty + m_cViewport.p.y);
+    olc::vf2d frt(ftx + m_cViewport.topLeft().x, fty + m_cViewport.topLeft().y);
     olc::vi2d rt(
       static_cast<int>(std::round(frt.x)),
       static_cast<int>(std::round(frt.y))

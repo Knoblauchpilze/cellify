@@ -23,8 +23,8 @@ main(int /*argc*/, char** /*argv*/) {
   try {
     logger.logMessage(utils::Level::Notice, "Starting application");
 
-    pge::Viewport tViewport = pge::newViewport(olc::vf2d(-10.0f, -7.5f), olc::vf2d(20.0f, 15.0f));
-    pge::Viewport pViewport = pge::newViewport(olc::vf2d(0.0f, 0.0f), olc::vf2d(800.0f, 600.0f));
+    pge::Viewport tViewport = pge::Viewport(olc::vf2d(-10.0f, -7.5f), olc::vf2d(20.0f, 15.0f));
+    pge::Viewport pViewport = pge::Viewport(olc::vf2d(0.0f, 0.0f), olc::vf2d(800.0f, 600.0f));
 
     pge::CoordinateFrameShPtr cf = std::make_shared<pge::TopViewFrame>(
       tViewport,

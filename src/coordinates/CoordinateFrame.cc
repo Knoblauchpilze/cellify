@@ -27,7 +27,7 @@ namespace pge {
 
   void
   CoordinateFrame::updateTileScale() {
-    m_tScaled = m_pViewport.dims / m_cViewport.dims;
+    m_tScaled = m_pViewport.dims() / m_cViewport.dims();
     m_scale = m_tScaled / m_ts;
 
     log(
