@@ -29,7 +29,7 @@ namespace cellify {
     }
 
     const utils::Point2i& l = m_points.back();
-    if (duplicate && l == p) {
+    if (!duplicate && l == p) {
       return;
     }
 
