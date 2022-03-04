@@ -6,6 +6,7 @@
 # include <maths_utils/Point2.hh>
 # include "Tiles.hh"
 # include "StepInfo.hh"
+# include "AI.hh"
 
 namespace cellify {
 
@@ -16,9 +17,11 @@ namespace cellify {
        * @brief - Creates a new tile.
        * @param t - the type of the tile.
        * @param pos - the position of the element.
+       * @param brain - the brain attached to this element.
        */
       Element(const Tile& t,
-              const utils::Point2i& pos);
+              const utils::Point2i& pos,
+              AIShPtr brain = nullptr);
 
       /**
        * @brief - Return the type of the element.
@@ -33,6 +36,23 @@ namespace cellify {
        */
       const utils::Point2i&
       pos() const noexcept;
+
+      /**
+       * @brief - Defines whether this element has been marked
+       *          for deletion.
+       * @return - `true` if the element has been deleted.
+       */
+      bool
+      tobeDeleted() const noexcept;
+
+      /**
+       * @brief - Assign a new brain to the element. Note
+       *          that the brain can be null which means
+       *          that the element won't move anymore.
+       * @param brain - the new brain for this element.
+       */
+      void
+      plug(AIShPtr brain) noexcept;
 
       /**
        * @brief - Interface method caled before the first
@@ -86,6 +106,17 @@ namespace cellify {
        * @brief - The position of the element.
        */
       utils::Point2i m_pos;
+
+      /**
+       * @brief - The brain of this element.
+       */
+      AIShPtr m_brain;
+
+      /**
+       * @brief - Defines that this element has been marked
+       *          for deletion.
+       */
+      bool m_deleted;
   };
 
   using ElementShPtr = std::shared_ptr<Element>;

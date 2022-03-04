@@ -34,6 +34,10 @@ namespace cellify {
 
       utils::now(),  // moment
       tDelta,        // elapsed
+
+      *m_grid,       // grid
+
+      Elements()     // elements
     };
 
     // Simulate elements.

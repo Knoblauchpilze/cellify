@@ -9,10 +9,11 @@
 # include "Tiles.hh"
 # include "StepInfo.hh"
 # include "Element.hh"
+# include "Locator.hh"
 
 namespace cellify {
 
-  class Grid: public utils::CoreObject {
+  class Grid: public utils::CoreObject, public Locator {
     public:
 
       /**
@@ -95,17 +96,16 @@ namespace cellify {
       obstructed(int x, int y, bool includeMobs = false) const noexcept;
 
       /**
-       * @brief - Determine whether the input coordinates are
-       *          obstructed. Internally the above method is
-       *          called.
+       * @brief - Implementation of the interface method to detect
+       *          obstructions on the grid.
        * @param p - the coordinates to check for obstruction.
-       * @param y - the ordinate to check for obstruction.
-       * @param includeMobs - `true` in case the obstruction
-       *                      should also include mobs.
+       * @param includeNonSolid - `true` in case the obstruction
+       *                          should also include mobs.
        * @return - `true` if the location is occupied.
        */
       bool
-      obstructed(const utils::Point2i& p, bool includeMobs = false) const noexcept;
+      obstructed(const utils::Point2i& p,
+                 bool includeNonSolid = false) const noexcept override;
 
       /**
        * @brief - Spawns a new element in the grid and register

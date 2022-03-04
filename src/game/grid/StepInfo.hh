@@ -2,11 +2,23 @@
 # define   STEP_INFO_HH
 
 # include <vector>
+# include <memory>
 # include <core_utils/RNG.hh>
 # include <core_utils/TimeUtils.hh>
-# include "Element.hh"
 
 namespace cellify {
+
+  /// @brief - Forward declaration of the element class.
+  class Element;
+
+  /// @brief - Forward declaration of the element pointer.
+  using ElementShPtr = std::shared_ptr<Element>;
+
+  /// @brief - A list of elements.
+  using Elements = std::vector<ElementShPtr>;
+
+  /// @brief - Forward declaration of a grid.
+  class Grid;
 
   /// @brief - Convenience structure regrouping all variables
   /// needed to perform the advancement of one step of a world
@@ -23,9 +35,13 @@ namespace cellify {
     // The time elapsed since the last call to this method.
     float elapsed;
 
+    // The grid allowing to detect obstruction in cells and
+    // generally get info about the world.
+    Grid& grid;
+
     // The list of elements that will be spawned after the
     // end of the step.
-    std::vector<ElementShPtr> spawned;
+    Elements spawned;
   };
 
 }

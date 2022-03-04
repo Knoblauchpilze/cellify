@@ -81,7 +81,7 @@ namespace pge {
 
   void
   Game::updateUI() {
-    log("Perform update of UI menus", utils::Level::Info);
+    /// TODO: Handle menus.
   }
 
 }

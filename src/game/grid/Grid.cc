@@ -1,5 +1,6 @@
 
 # include <Grid.hh>
+# include "Ant.hh"
 
 namespace cellify {
 
@@ -98,11 +99,25 @@ namespace cellify {
 
   void
   Grid::update() noexcept {
-    /// TODO: Handle the update and deletion of elements.
+    // Use the standard algorithm to remove elements
+    // that have been marked for deletion.
+    m_cells.erase(
+      std::remove_if(
+        m_cells.begin(),
+        m_cells.end(),
+        [](ElementShPtr el){
+          return el->tobeDeleted();
+        }
+      ),
+      m_cells.end()
+    );
   }
 
   void
-  Grid::initialize(utils::RNG& rng) noexcept {
+  Grid::initialize(utils::RNG& /*rng*/) noexcept {
+# ifndef SIM
+    m_cells.push_back(std::make_shared<Element>(Tile::Ant, utils::Point2i(0, 0), std::make_shared<Ant>()));
+# else
     static const int size = 50;
     static const int count = 25;
 
@@ -113,8 +128,14 @@ namespace cellify {
       pos.x() = rng.rndInt(-size / 2, size / 2);
       pos.y() = rng.rndInt(-size / 2, size / 2);
 
-      m_cells.push_back(std::make_shared<Element>(t, pos));
+      AIShPtr brain = nullptr;
+      if (t == Tile::Ant) {
+        brain = std::make_shared<Ant>();
+      }
+
+      m_cells.push_back(std::make_shared<Element>(t, pos, brain));
     }
+# endif
   }
 
 }
