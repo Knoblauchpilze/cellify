@@ -23,7 +23,7 @@ namespace cellify {
 
   void
   Path::add(const utils::Point2i& p, bool duplicate) noexcept {
-    if (m_points.empty()) {
+    if (empty()) {
       m_points.push_back(p);
       return;
     }
@@ -60,7 +60,7 @@ namespace cellify {
 
   const utils::Point2i&
   Path::begin() const {
-    if (m_points.empty()) {
+    if (empty()) {
       error(
         "Failed to get starting point of the path",
         "Path is empty"
@@ -72,7 +72,7 @@ namespace cellify {
 
   const utils::Point2i&
   Path::end() const {
-    if (m_points.empty()) {
+    if (empty()) {
       error(
         "Failed to get ending point of the path",
         "Path is empty"
@@ -83,8 +83,25 @@ namespace cellify {
   }
 
   unsigned
-  Path::length() const noexcept {
+  Path::size() const noexcept {
     return m_points.size();
+  }
+
+  bool
+  Path::empty() const noexcept {
+    return m_points.empty();
+  }
+
+  utils::Point2i
+  Path::advance() {
+    if (empty()) {
+      error("Failed to advance on path", "Path is empty");
+    }
+
+    utils::Point2i p = m_points.front();
+    m_points.pop_front();
+
+    return p;
   }
 
 }

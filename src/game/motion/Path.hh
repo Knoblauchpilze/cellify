@@ -1,14 +1,14 @@
 #ifndef    PATH_HH
 # define   PATH_HH
 
-# include <vector>
+# include <deque>
 # include <maths_utils/Point2.hh>
 # include <core_utils/CoreObject.hh>
 
 namespace cellify {
 
   /// @brief - Convenience define for a vector of points.
-  using Points = std::vector<utils::Point2i>;
+  using Points = std::deque<utils::Point2i>;
 
   /// @brief - A convenience structure to define a path as a list
   /// of point.
@@ -78,7 +78,24 @@ namespace cellify {
        * @return - the number of points in the path.
        */
       unsigned
-      length() const noexcept;
+      size() const noexcept;
+
+      /**
+       * @brief - Whether the path is empty.
+       * @return - `true` if the path is empty.
+       */
+      bool
+      empty() const noexcept;
+
+      /**
+       * @brief - Advance to the next step in the path. This
+       *          method will remove the first element of
+       *          the path and return it.
+       *          In case the path is empty, an error is raised.
+       * @return - the next position in the path.
+       */
+      utils::Point2i
+      advance();
 
     private:
 

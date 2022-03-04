@@ -3,7 +3,7 @@
 
 # include <core_utils/CoreObject.hh>
 # include "Path.hh"
-# include "Grid.hh"
+# include "Locator.hh"
 
 namespace cellify {
 
@@ -20,11 +20,12 @@ namespace cellify {
        *          checks.
        * @param s - the starting position.
        * @param e - the end position.
-       * @param grid - the grid defining obstacles.
+       * @param loc - the locator service to check if cells are
+       *              obstructed or not.
        */
       AStar(const utils::Point2i& s,
             const utils::Point2i& e,
-            const Grid& grid);
+            const Locator& loc);
 
       /**
        * @brief - Used to generate the path from the starting position
@@ -74,10 +75,10 @@ namespace cellify {
       utils::Point2i m_end;
 
       /**
-       * @brief - A grid allowing to determine whether a cell is
-       *          obstructed.
+       * @brief - A service allowing to determine whether a cell
+       *          is obstructed.
        */
-      const Grid& m_grid;
+      const Locator& m_loc;
   };
 
 }

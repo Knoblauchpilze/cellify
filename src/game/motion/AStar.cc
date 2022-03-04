@@ -22,7 +22,7 @@ namespace {
     bool bounded = false;
     unsigned id = 0u;
 
-    while (id < path.length() && bounded) {
+    while (id < path.size() && bounded) {
       bounded = (utils::d(p, path[id]) > d);
       ++id;
     }
@@ -36,13 +36,13 @@ namespace cellify {
 
   AStar::AStar(const utils::Point2i& s,
                const utils::Point2i& e,
-               const Grid& grid):
+               const Locator& loc):
     utils::CoreObject("algo"),
 
     m_start(s),
     m_end(e),
 
-    m_grid(grid)
+    m_loc(loc)
   {
     setService("astar");
   }
@@ -98,7 +98,7 @@ namespace cellify {
         // Only consider the node if it is not obstructed.
         // Note that if the node is the target, we also do
         // not consider whether it's obstructed.
-        if (m_grid.obstructed(neighbor.p()) && !neighbor.contains(m_end)) {
+        if (m_loc.obstructed(neighbor.p()) && !neighbor.contains(m_end)) {
           continue;
         }
 
