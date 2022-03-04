@@ -116,6 +116,9 @@ namespace pge {
       void
       drawOverlays(const RenderDesc& res) noexcept;
 
+      void
+      drawGrid(const RenderDesc& res) noexcept;
+
     private:
 
       /**
