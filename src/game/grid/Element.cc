@@ -24,7 +24,8 @@ namespace cellify {
     m_deleted(false),
 
     m_path(),
-    m_last(utils::now())
+    m_last(utils::now()),
+    m_elapsedSinceLast(utils::Duration::zero())
   {
     setService("world");
 
@@ -129,11 +130,19 @@ namespace cellify {
   }
 
   void
-  Element::pause(const utils::TimeStamp& /*t*/) {
-    /// TODO: Handle the m_last moment.
+  Element::pause(const utils::TimeStamp& t) {
+    // Update the elapsed time since the last moment
+    // the agent moved.
+    m_elapsedSinceLast = t - m_last;
   }
 
   void
-  Element::resume(const utils::TimeStamp& /*t*/) {}
+  Element::resume(const utils::TimeStamp& t) {
+    // Restore the last time the agent move so that
+    // it is as in the past as indicated by the value
+    // of the dedicated attribute.
+    m_last = t - m_elapsedSinceLast;
+    m_elapsedSinceLast = utils::Duration::zero();
+  }
 
 }

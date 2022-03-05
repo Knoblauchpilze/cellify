@@ -135,6 +135,12 @@ namespace cellify {
        * @brief - The last time the element moved.
        */
       utils::TimeStamp m_last;
+
+      /**
+       * @brief - The elapsed time compared to the last time
+       *          the element moved at the moment of the pause.
+       */
+      utils::Duration m_elapsedSinceLast;
   };
 
   using ElementShPtr = std::shared_ptr<Element>;
