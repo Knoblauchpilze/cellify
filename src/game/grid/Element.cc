@@ -61,7 +61,8 @@ namespace cellify {
       info.moment,
       info.elapsed,
       info.grid,
-      m_deleted
+      m_deleted,
+      Animats()
     };
     m_brain->init(i);
 
@@ -84,13 +85,28 @@ namespace cellify {
       info.moment,
       info.elapsed,
       info.grid,
-      m_deleted
+      m_deleted,
+      Animats()
     };
     m_brain->step(i);
 
     // Persist the information.
     m_pos = i.pos;
     m_deleted = i.selfDestruct;
+
+    // And also copy the spawned elements.
+    for (unsigned id = 0u ; id < i.spawned.size() ; ++id) {
+      const Animat& a = i.spawned[id];
+
+      ElementShPtr e = std::make_shared<Element>(
+        /* TODO: Type of the spawned animat */
+        Tile::Ant,
+        a.pos,
+        a.brain
+      );
+
+      info.spawned.push_back(e);
+    }
   }
 
   void

@@ -1,12 +1,40 @@
 #ifndef    INFO_HH
 # define   INFO_HH
 
+# include <vector>
 # include <maths_utils/Point2.hh>
 # include <core_utils/RNG.hh>
 # include <core_utils/TimeUtils.hh>
 # include "Locator.hh"
 
 namespace cellify {
+
+  /// @brief - Forward declaration of the AI class.
+  class AI;
+
+  /// @brief - Forward declaration of the AI pointer.
+  using AIShPtr = std::shared_ptr<AI>;
+
+  /// @brief - A list of AIs.
+  using AIs = std::vector<AIShPtr>;
+
+  /// @brief - Convenience structure defining the info to
+  /// use to create a new agent.
+  struct Animat {
+    // The position of the agent at the moment of its
+    // creation.
+    utils::Point2i pos;
+
+    // The type of the agent.
+    /// TODO: Define type of the agent in the animat.
+
+    // The brain associated to the animat. May be null in
+    // case the animat is a simple element.
+    AIShPtr brain;
+  };
+
+  /// @brief - A list of spawned elements.
+  using Animats = std::vector<Animat>;
 
   /// @brief - The information needed by the AI to perform
   /// its processing.
@@ -31,6 +59,10 @@ namespace cellify {
     // Whether or not this element needs to be marked for
     // deletion.
     bool selfDestruct;
+
+    // A list of new AIs that might be created by this
+    // agent.
+    Animats spawned;
   };
 
 }
