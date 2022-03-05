@@ -26,9 +26,6 @@ namespace cellify {
     // creation.
     utils::Point2i pos;
 
-    // The type of the agent.
-    /// TODO: Define type of the agent in the animat.
-
     // The brain associated to the animat. May be null in
     // case the animat is a simple element.
     AIShPtr brain;

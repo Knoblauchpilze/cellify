@@ -1,10 +1,28 @@
 
 # include "Element.hh"
 # include "Grid.hh"
+# include "Ant.hh"
 
 /// @brief - The interval defining two consecutive
 /// moves of an ant in milliseconds.
 # define IDLE_TIME 200
+
+namespace {
+
+  cellify::Tile
+  tileFromBrain(cellify::AIShPtr brain) noexcept {
+    // Based on the type of the AI, assign the correct
+    // type of tile.
+    if (std::dynamic_pointer_cast<cellify::Ant>(brain)) {
+      return cellify::Tile::Ant;
+    }
+
+    // Assume it's a colony as the food doesn't have a
+    // brain at all.
+    return cellify::Tile::Colony;
+  }
+
+}
 
 namespace cellify {
 
@@ -79,6 +97,20 @@ namespace cellify {
     m_pos = m_path.begin();
     m_deleted = i.selfDestruct;
 
+    // Copy the spawned elements.
+    for (unsigned id = 0u ; id < i.spawned.size() ; ++id) {
+      const Animat& a = i.spawned[id];
+
+      ElementShPtr e = std::make_shared<Element>(
+        // Generate the type of the element from its brain.
+        tileFromBrain(a.brain),
+        a.pos,
+        a.brain
+      );
+
+      info.spawned.push_back(e);
+    }
+
     m_last = info.moment;
   }
 
@@ -119,8 +151,8 @@ namespace cellify {
       const Animat& a = i.spawned[id];
 
       ElementShPtr e = std::make_shared<Element>(
-        /* TODO: Type of the spawned animat */
-        Tile::Ant,
+        // Generate the type of the element from its brain.
+        tileFromBrain(a.brain),
         a.pos,
         a.brain
       );
