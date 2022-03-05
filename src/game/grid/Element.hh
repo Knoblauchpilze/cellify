@@ -3,6 +3,7 @@
 
 # include <memory>
 # include <core_utils/CoreObject.hh>
+# include <core_utils/Uuid.hh>
 # include <maths_utils/Point2.hh>
 # include "Tiles.hh"
 # include "StepInfo.hh"
@@ -18,10 +19,12 @@ namespace cellify {
        * @param t - the type of the tile.
        * @param pos - the position of the element.
        * @param brain - the brain attached to this element.
+       * @param uuid - the identifier for this element.
        */
       Element(const Tile& t,
               const utils::Point2i& pos,
-              AIShPtr brain = nullptr);
+              AIShPtr brain = nullptr,
+              const utils::Uuid& uuid = utils::Uuid());
 
       /**
        * @brief - Return the type of the element.
@@ -96,6 +99,11 @@ namespace cellify {
       resume(const utils::TimeStamp& t);
 
     private:
+
+      /**
+       * @brief - The identifier for this element.
+       */
+      utils::Uuid m_uuid;
 
       /**
        * @brief - The type of the element.

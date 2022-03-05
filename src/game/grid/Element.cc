@@ -6,8 +6,11 @@ namespace cellify {
 
   Element::Element(const Tile& t,
                    const utils::Point2i& pos,
-                   AIShPtr brain):
+                   AIShPtr brain,
+                   const utils::Uuid& uuid):
     utils::CoreObject(tileToString(t)),
+
+    m_uuid(uuid),
 
     m_tile(t),
     m_pos(pos),
@@ -17,6 +20,11 @@ namespace cellify {
     m_deleted(false)
   {
     setService("world");
+
+    // Generate valid uuid if needed.
+    if (!m_uuid.valid()) {
+      m_uuid = utils::Uuid::create();
+    }
   }
 
   const Tile&
