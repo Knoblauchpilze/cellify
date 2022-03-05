@@ -2,8 +2,6 @@
 # define   ANT_HH
 
 # include "AI.hh"
-# include "Path.hh"
-# include "AStar.hh"
 
 namespace cellify {
 
@@ -39,18 +37,6 @@ namespace cellify {
        */
       bool
       generatePath(Info& info);
-
-    private:
-
-      /**
-       * @brief - The current path followed by the ant.
-       */
-      Path m_path;
-
-      /**
-       * @brief - The last time the agent moved.
-       */
-      utils::TimeStamp m_last;
   };
 
 }

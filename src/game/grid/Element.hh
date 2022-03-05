@@ -125,6 +125,16 @@ namespace cellify {
        *          for deletion.
        */
       bool m_deleted;
+
+      /**
+       * @brief - The current path followed by the element.
+       */
+      Path m_path;
+
+      /**
+       * @brief - The last time the element moved.
+       */
+      utils::TimeStamp m_last;
   };
 
   using ElementShPtr = std::shared_ptr<Element>;

@@ -2,6 +2,10 @@
 # include "Element.hh"
 # include "Grid.hh"
 
+/// @brief - The interval defining two consecutive
+/// moves of an ant in milliseconds.
+# define IDLE_TIME 200
+
 namespace cellify {
 
   Element::Element(const Tile& t,
@@ -17,7 +21,10 @@ namespace cellify {
 
     m_brain(brain),
 
-    m_deleted(false)
+    m_deleted(false),
+
+    m_path(),
+    m_last(utils::now())
   {
     setService("world");
 
@@ -60,6 +67,7 @@ namespace cellify {
       info.rng,
       info.moment,
       info.elapsed,
+      m_path,
       info.grid,
       m_deleted,
       Animats()
@@ -67,8 +75,10 @@ namespace cellify {
     m_brain->init(i);
 
     // Persist the information.
-    m_pos = i.pos;
+    m_pos = m_path.begin();
     m_deleted = i.selfDestruct;
+
+    m_last = info.moment;
   }
 
   void
@@ -84,17 +94,26 @@ namespace cellify {
       info.rng,
       info.moment,
       info.elapsed,
+      m_path,
       info.grid,
       m_deleted,
       Animats()
     };
     m_brain->step(i);
 
+    // Pick the next position in the path and advance
+    // to this location if we moved long enough in the
+    // past.
+    utils::Duration d = info.moment - m_last;
+    if (utils::toMilliseconds(d) >= IDLE_TIME) {
+      m_pos = m_path.advance();
+      m_last = info.moment;
+    }
+
     // Persist the information.
-    m_pos = i.pos;
     m_deleted = i.selfDestruct;
 
-    // And also copy the spawned elements.
+    // And copy the spawned elements.
     for (unsigned id = 0u ; id < i.spawned.size() ; ++id) {
       const Animat& a = i.spawned[id];
 
@@ -110,7 +129,9 @@ namespace cellify {
   }
 
   void
-  Element::pause(const utils::TimeStamp& /*t*/) {}
+  Element::pause(const utils::TimeStamp& /*t*/) {
+    /// TODO: Handle the m_last moment.
+  }
 
   void
   Element::resume(const utils::TimeStamp& /*t*/) {}

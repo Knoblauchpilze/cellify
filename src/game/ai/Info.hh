@@ -5,6 +5,7 @@
 # include <maths_utils/Point2.hh>
 # include <core_utils/RNG.hh>
 # include <core_utils/TimeUtils.hh>
+# include "Path.hh"
 # include "Locator.hh"
 
 namespace cellify {
@@ -51,6 +52,9 @@ namespace cellify {
 
     // The time elapsed since the last call to this method.
     float elapsed;
+
+    // The current path followed by the element.
+    Path& path;
 
     // The locator service allowing to determine whether
     // cells are obstructed or not.
