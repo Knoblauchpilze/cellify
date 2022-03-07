@@ -49,6 +49,15 @@ namespace cellify {
       void
       resume();
 
+      /**
+       * @brief - The number of tile of a certain type currently
+       *          registered in the world.
+       * @param tile - the type of tile to count.
+       * @return - the number of tiles of the input type.
+       */
+      unsigned
+      count(const Tile& tile) const noexcept;
+
     private:
 
       /**

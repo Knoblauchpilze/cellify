@@ -88,4 +88,18 @@ namespace cellify {
     m_paused = false;
   }
 
+  unsigned
+  World::count(const Tile& tile) const noexcept {
+    unsigned count = 0u;
+
+    // Simulate elements.
+    for (unsigned id = 0u ; id < m_grid->size() ; ++id) {
+      if (tile == m_grid->at(id).type()) {
+        ++count;
+      }
+    }
+
+    return count;
+  }
+
 }

@@ -110,6 +110,14 @@ namespace pge {
       void
       resume();
 
+      /**
+       * @brief - Used to change the speed of the simulation
+       *          or reduce it in case it is already at its
+       *          maximum value.
+       */
+      void
+      speedUpSimulation() noexcept;
+
     private:
 
       /**
@@ -131,12 +139,10 @@ namespace pge {
 
     private:
 
-      /**
-       * @brief - Convenience information defining the state of the
-       *          game. It includes information about whether the
-       *          menus should be displayed and if the user actions
-       *          should be interpreted or not.
-       */
+      ///@brief - Convenience information defining the state of
+      /// the game. It includes information about whether the
+      /// menus should be displayed and if the user actions
+      /// should be interpreted or not.
       struct State {
         // Defines whether this world is paused (i.e.
         // internal attributes of the mobs/blocks/etc
@@ -154,6 +160,22 @@ namespace pge {
         // be performed anymore and usually indicates that a
         // termination request has been received.
         bool terminated;
+
+        // The current speed of the simulation.
+        float speed;
+      };
+
+      /// @brief - Convenience structure allowing to regroup
+      /// all info about the menu in a single struct.
+      struct Menus {
+        // The number of agents in the simulation.
+        MenuShPtr count;
+
+        // The speed of the current simulation.
+        MenuShPtr speed;
+
+        // The probe menu.
+        MenuShPtr probe;
       };
 
       /**
@@ -165,6 +187,12 @@ namespace pge {
        * @brief - The world attached to the game.
        */
       cellify::WorldShPtr m_world;
+
+      /**
+       * @brief - The menus displaying information about the
+       *          current state of the simulation.
+       */
+      Menus m_menus;
   };
 
   using GameShPtr = std::shared_ptr<Game>;
