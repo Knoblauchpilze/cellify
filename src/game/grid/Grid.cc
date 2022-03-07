@@ -2,6 +2,14 @@
 # include <Grid.hh>
 # include "Ant.hh"
 
+/// @brief - The radius of the food circle around the
+/// central colony.
+# define FOOD_DEPOSITS_RADIUS 10
+
+/// @brief - The number of deposits to put on the food
+/// circle around the colony.
+# define FOOD_DEPOSITS_COUNT 4
+
 namespace cellify {
 
   Grid::Grid(utils::RNG& rng):
@@ -115,26 +123,59 @@ namespace cellify {
 
   void
   Grid::initialize(utils::RNG& /*rng*/) noexcept {
-# ifndef SIM
-    m_cells.push_back(std::make_shared<Element>(Tile::Ant, utils::Point2i(0, 0), std::make_shared<Ant>()));
-# else
-    static const int size = 50;
-    static const int count = 25;
+    // Generate an anthill at the origin of the world.
+    m_cells.push_back(
+      std::make_shared<Element>(
+        Tile::Colony,
+        utils::Point2i(),
+        nullptr
+      )
+    );
 
-    for (int id = 0 ; id < count ; ++id) {
-      Tile t = static_cast<Tile>(id % 3);
+    // Generate a ring of food around it with a certain
+    // radius.
+    for (unsigned id = 0u ; id < FOOD_DEPOSITS_COUNT ; ++id) {
+      float perc = 1.0f * id / FOOD_DEPOSITS_COUNT;
 
-      utils::Point2i pos;
-      pos.x() = rng.rndInt(-size / 2, size / 2);
-      pos.y() = rng.rndInt(-size / 2, size / 2);
+      float fx = FOOD_DEPOSITS_RADIUS * std::cos(2.0f * M_PI * perc);
+      float fy = FOOD_DEPOSITS_RADIUS * std::sin(2.0f * M_PI * perc);
 
-      AIShPtr brain = nullptr;
-      if (t == Tile::Ant) {
-        brain = std::make_shared<Ant>();
-      }
+      int x = static_cast<int>(std::round(fx));
+      int y = static_cast<int>(std::round(fy));
 
-      m_cells.push_back(std::make_shared<Element>(t, pos, brain));
+      m_cells.push_back(
+        std::make_shared<Element>(
+          Tile::Food,
+          utils::Point2i(x, y),
+          nullptr
+        )
+      );
     }
+
+    // Generate a ring of ants around the central colony.
+    Tile t = Tile::Ant;
+
+    utils::Point2i p(1, 0);
+    AIShPtr ai = std::make_shared<Ant>();
+    ElementShPtr e = std::make_shared<Element>(t, p, ai);
+    m_cells.push_back(e);
+
+// # define ALL_ANTS
+# ifdef ALL_ANTS
+    p = utils::Point2i(-1, 0);
+    ai = std::make_shared<Ant>();
+    e = std::make_shared<Element>(t, p, ai);
+    m_cells.push_back(e);
+
+    p = utils::Point2i(0, 1);
+    ai = std::make_shared<Ant>();
+    e = std::make_shared<Element>(t, p, ai);
+    m_cells.push_back(e);
+
+    p = utils::Point2i(0, -1);
+    ai = std::make_shared<Ant>();
+    e = std::make_shared<Element>(t, p, ai);
+    m_cells.push_back(e);
 # endif
   }
 
