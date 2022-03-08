@@ -1,6 +1,7 @@
 #ifndef    ELEMENT_HH
 # define   ELEMENT_HH
 
+# include <vector>
 # include <memory>
 # include <core_utils/CoreObject.hh>
 # include <core_utils/Uuid.hh>
@@ -19,11 +20,13 @@ namespace cellify {
        * @param t - the type of the tile.
        * @param pos - the position of the element.
        * @param brain - the brain attached to this element.
+       * @param data - the specific data for this element.
        * @param uuid - the identifier for this element.
        */
       Element(const Tile& t,
               const utils::Point2i& pos,
               AIShPtr brain = nullptr,
+              const std::vector<char>& data = std::vector<char>(),
               const utils::Uuid& uuid = utils::Uuid());
 
       /**
@@ -32,6 +35,25 @@ namespace cellify {
        */
       const Tile&
       type() const noexcept;
+
+      /**
+       * @brief - Whether this element has specific data.
+       * @return - `true` if the element has specific data.
+       */
+      bool
+      hasData() const noexcept;
+
+      /**
+       * @brief - Get the specific data for this element. It
+       *          corresponds to a segment of data that is
+       *          dependent on the type of the element. It
+       *          can be interpreted based on the type and
+       *          provide more information about the actual
+       *          type of an element.
+       * @return - the constant data segment for this element.
+       */
+      const char*
+      data() const noexcept;
 
       /**
        * @brief - The position of the element.
@@ -100,6 +122,10 @@ namespace cellify {
 
     private:
 
+      /// @brief - A convenience define for the specific data
+      /// segement attached to this element.
+      using SpecificData = std::vector<char>;
+
       /**
        * @brief - The identifier for this element.
        */
@@ -109,6 +135,11 @@ namespace cellify {
        * @brief - The type of the element.
        */
       Tile m_tile;
+
+      /**
+       * @brief - The specific data for this element.
+       */
+      SpecificData m_data;
 
       /**
        * @brief - The position of the element.

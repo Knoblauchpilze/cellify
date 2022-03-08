@@ -161,29 +161,6 @@ namespace cellify {
         )
       );
     }
-
-    // Generate pheromons.
-    Tile t = Tile::Pheromon;
-
-    utils::Point2i p(2, 0);
-    AIShPtr ai = std::make_shared<Pheromon>(1.0f, 0.1f);
-    ElementShPtr e = std::make_shared<Element>(t, p, ai);
-    m_cells.push_back(e);
-
-    // p = utils::Point2i(-2, 0);
-    // ai = std::make_shared<Pheromon>(1.0f, 0.5f);
-    // e = std::make_shared<Element>(t, p, ai);
-    // m_cells.push_back(e);
-
-    // p = utils::Point2i(0, 2);
-    // ai = std::make_shared<Pheromon>(1.0f, 0.2f);
-    // e = std::make_shared<Element>(t, p, ai);
-    // m_cells.push_back(e);
-
-    // p = utils::Point2i(0, -2);
-    // ai = std::make_shared<Pheromon>(1.0f, 0.4f);
-    // e = std::make_shared<Element>(t, p, ai);
-    // m_cells.push_back(e);
   }
 
 }

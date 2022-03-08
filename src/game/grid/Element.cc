@@ -1,5 +1,6 @@
 
 # include "Element.hh"
+# include <cstring>
 # include "Grid.hh"
 # include "Ant.hh"
 # include "Colony.hh"
@@ -27,6 +28,39 @@ namespace {
     return cellify::Tile::Ant;
   }
 
+  std::vector<char>
+  dataFromBrain(cellify::AIShPtr brain) noexcept {
+    std::vector<char> out;
+
+    // Based on the type of the AI, assign the correct
+    // property to the data.
+    cellify::AntShPtr a = std::dynamic_pointer_cast<cellify::Ant>(brain);
+    if (a) {
+      out.resize(sizeof(cellify::Behavior));
+      cellify::Behavior b = a->mode();
+
+      std::memcpy(
+        out.data(),
+        reinterpret_cast<const char*>(&b),
+        sizeof(cellify::Behavior)
+      );
+    }
+    cellify::PheromonShPtr p = std::dynamic_pointer_cast<cellify::Pheromon>(brain);
+    if (p) {
+      out.resize(sizeof(cellify::Scent));
+      cellify::Scent s = p->kind();
+
+      std::memcpy(
+        out.data(),
+        reinterpret_cast<const char*>(&s),
+        sizeof(cellify::Scent)
+      );
+    }
+
+    // Assume there's no data.
+    return out;
+  }
+
 }
 
 namespace cellify {
@@ -34,12 +68,14 @@ namespace cellify {
   Element::Element(const Tile& t,
                    const utils::Point2i& pos,
                    AIShPtr brain,
+                   const std::vector<char>& data,
                    const utils::Uuid& uuid):
     utils::CoreObject(tileToString(t)),
 
     m_uuid(uuid),
 
     m_tile(t),
+    m_data(),
     m_pos(pos),
 
     m_brain(brain),
@@ -56,11 +92,32 @@ namespace cellify {
     if (!m_uuid.valid()) {
       m_uuid = utils::Uuid::create();
     }
+
+    // Copy the specific data.
+    if (!data.empty()) {
+      m_data.insert(m_data.end(), data.begin(), data.end());
+    }
   }
 
   const Tile&
   Element::type() const noexcept {
     return m_tile;
+  }
+
+  bool
+  Element::hasData() const noexcept {
+    return !m_data.empty();
+  }
+
+  const char*
+  Element::data() const noexcept {
+    // An empty vector doesn't have any data only when
+    // it has not been allocated.
+    if (!hasData()) {
+      return nullptr;
+    }
+
+    return m_data.data();
   }
 
   const utils::Point2i&
@@ -108,12 +165,11 @@ namespace cellify {
     for (unsigned id = 0u ; id < i.spawned.size() ; ++id) {
       const Animat& a = i.spawned[id];
 
-      ElementShPtr e = std::make_shared<Element>(
-        // Generate the type of the element from its brain.
-        tileFromBrain(a.brain),
-        a.pos,
-        a.brain
-      );
+      // Generate the type of the element from its brain.
+      Tile t = tileFromBrain(a.brain);
+      std::vector<char> d = dataFromBrain(a.brain);
+
+      ElementShPtr e = std::make_shared<Element>(t, a.pos, a.brain, d);
 
       info.spawned.push_back(e);
     }
@@ -159,12 +215,13 @@ namespace cellify {
     for (unsigned id = 0u ; id < i.spawned.size() ; ++id) {
       const Animat& a = i.spawned[id];
 
-      ElementShPtr e = std::make_shared<Element>(
-        // Generate the type of the element from its brain.
-        tileFromBrain(a.brain),
-        a.pos,
-        a.brain
-      );
+      // Generate the type of the element from its brain.
+      Tile t = tileFromBrain(a.brain);
+      std::vector<char> d = dataFromBrain(a.brain);
+
+      ElementShPtr e = std::make_shared<Element>(t, a.pos, a.brain, d);
+
+      /// TODO: Associate data.
 
       info.spawned.push_back(e);
     }

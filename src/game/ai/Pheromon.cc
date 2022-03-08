@@ -3,13 +3,21 @@
 
 namespace cellify {
 
-  Pheromon::Pheromon(float amount,
+  Pheromon::Pheromon(const Scent& scent,
+                     float amount,
                      float evaporation):
     AI("pheromon"),
+
+    m_scent(scent),
 
     m_amount(amount),
     m_evaporation(evaporation)
   {}
+
+  Scent
+  Pheromon::kind() const noexcept {
+    return m_scent;
+  }
 
   void
   Pheromon::init(Info& /*info*/) {}

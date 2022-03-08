@@ -1,20 +1,36 @@
 #ifndef    PHEROMON_HH
 # define   PHEROMON_HH
 
+# include <memory>
 # include "AI.hh"
 
 namespace cellify {
+
+  /// @brief - The possible types for a pheromon.
+  enum class Scent {
+    Home,
+    Food
+  };
 
   class Pheromon: public AI {
     public:
 
       /**
        * @brief - Creates a new pheromon with the specified amount.
+       * @param scent - the type for this pheromon.
        * @param amount - the amount of pheromon initially.
        * @param evaporation - the evaporation rate in unit per second.
        */
-      Pheromon(float amount,
+      Pheromon(const Scent& scent,
+               float amount,
                float evaporation);
+
+      /**
+       * @brief - Return the type of the pheromon.
+       * @return - the kind of the pheromon.
+       */
+      Scent
+      kind() const noexcept;
 
       /**
        * @brief - Implementation of the initialization method.
@@ -33,6 +49,11 @@ namespace cellify {
     private:
 
       /**
+       * @brief - The type of the pheromon.
+       */
+      Scent m_scent;
+
+      /**
        * @brief - The amount of pheromon available.
        */
       float m_amount;
@@ -44,6 +65,7 @@ namespace cellify {
       float m_evaporation;
   };
 
+  using PheromonShPtr = std::shared_ptr<Pheromon>;
 }
 
 #endif    /* PHEROMON_HH */

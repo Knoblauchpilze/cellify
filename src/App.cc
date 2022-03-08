@@ -1,20 +1,38 @@
 
 # include "App.hh"
-# include <maths_utils/ComparisonUtils.hh>
+# include "Ant.hh"
+# include "Pheromon.hh"
 
 namespace {
 
   olc::Pixel
-  colorFromTile(const cellify::Tile& t) noexcept {
+  colorFromTile(const cellify::Tile& t,
+                const char* data) noexcept
+  {
     switch (t) {
       case cellify::Tile::Colony:
-        return olc::YELLOW;
-      case cellify::Tile::Ant:
+        return olc::RED;
+      case cellify::Tile::Ant: {
+        const cellify::Behavior* b = reinterpret_cast<const cellify::Behavior*>(data);
+
+        if (*b == cellify::Behavior::Return) {
+          return olc::ORANGE;
+        }
+        if (*b == cellify::Behavior::Food) {
+          return olc::YELLOW;
+        }
         return olc::BLUE;
+      }
       case cellify::Tile::Food:
         return olc::GREEN;
-      case cellify::Tile::Pheromon:
-        return olc::ORANGE;
+      case cellify::Tile::Pheromon: {
+        const cellify::Scent* s = reinterpret_cast<const cellify::Scent*>(data);
+
+        if (*s == cellify::Scent::Food) {
+          return olc::Pixel(192, 255, 2);
+        }
+        return olc::Pixel(137, 209, 254);
+      }
       default:
         // Error case.
         return olc::RED;
@@ -248,7 +266,7 @@ namespace pge {
       sd.x = 1.0f * e.pos().x();
       sd.y = 1.0f * e.pos().y();
 
-      sd.sprite.tint = colorFromTile(e.type());
+      sd.sprite.tint = colorFromTile(e.type(), e.data());
       drawRect(sd, res.cf);
     }
   }

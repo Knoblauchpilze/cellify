@@ -16,14 +16,23 @@ namespace cellify {
   Ant::Ant():
     AI("ant"),
 
+    m_behavior(Behavior::Wander),
     m_lastPheromon()
   {}
+
+  Behavior
+  Ant::mode() const noexcept {
+    return m_behavior;
+  }
 
   void
   Ant::init(Info& info) {
     generatePath(info);
 
     m_lastPheromon = info.moment;
+
+    // The ant is looking for food at first.
+    m_behavior = Behavior::Wander;
   }
 
   void
@@ -61,9 +70,22 @@ namespace cellify {
 
   void
   Ant::spawnPheromon(Info& info) noexcept {
+    // Determine the type of pheromon based on the mode.
+    Scent s;
+    switch (m_behavior) {
+      case Behavior::Return:
+        s = Scent::Food;
+        break;
+      default:
+        // Any other behavior spawns pheromons to come
+        // back home.
+        s = Scent::Home;
+        break;
+    }
+
     info.spawned.push_back(Animat{
       info.pos,
-      std::make_shared<Pheromon>(1.0f, 0.1f)
+      std::make_shared<Pheromon>(s, 1.0f, 0.1f)
     });
 
     // Update the variables tracking the spawn of a new
