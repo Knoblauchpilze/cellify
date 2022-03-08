@@ -30,6 +30,8 @@ namespace cellify {
       return;
     }
 
+    // The input delat is expressed in seconds so
+    // we need to convert that in milliseconds.
     m_timestamp += 1000.0f * tDelta;
 
     StepInfo si{

@@ -1,5 +1,6 @@
 
 # include <Grid.hh>
+# include "Colony.hh"
 # include "Ant.hh"
 # include "Pheromon.hh"
 
@@ -103,6 +104,12 @@ namespace cellify {
       );
     }
 
+    log(
+      "Spawning agent with type " + tileToString(elem->type()) +
+      " at " + elem->pos().toString(),
+      utils::Level::Info
+    );
+
     m_cells.push_back(elem);
   }
 
@@ -132,7 +139,7 @@ namespace cellify {
   Grid::initialize(utils::RNG& /*rng*/) noexcept {
     // Generate an anthill at the origin of the world.
     m_cells.push_back(std::make_shared<Element>(
-      Tile::Colony, utils::Point2i(), nullptr
+      Tile::Colony, utils::Point2i(), std::make_shared<Colony>()
     ));
 
     // Generate a ring of food around it with a certain
@@ -155,54 +162,28 @@ namespace cellify {
       );
     }
 
-    // Generate a ring of ants around the central colony.
-    Tile t = Tile::Ant;
+    // Generate pheromons.
+    Tile t = Tile::Pheromon;
 
-    utils::Point2i p(1, 0);
-    AIShPtr ai = std::make_shared<Ant>();
+    utils::Point2i p(2, 0);
+    AIShPtr ai = std::make_shared<Pheromon>(1.0f, 0.1f);
     ElementShPtr e = std::make_shared<Element>(t, p, ai);
     m_cells.push_back(e);
 
-// # define ALL_ANTS
-# ifdef ALL_ANTS
-    p = utils::Point2i(-1, 0);
-    ai = std::make_shared<Ant>();
-    e = std::make_shared<Element>(t, p, ai);
-    m_cells.push_back(e);
+    // p = utils::Point2i(-2, 0);
+    // ai = std::make_shared<Pheromon>(1.0f, 0.5f);
+    // e = std::make_shared<Element>(t, p, ai);
+    // m_cells.push_back(e);
 
-    p = utils::Point2i(0, 1);
-    ai = std::make_shared<Ant>();
-    e = std::make_shared<Element>(t, p, ai);
-    m_cells.push_back(e);
+    // p = utils::Point2i(0, 2);
+    // ai = std::make_shared<Pheromon>(1.0f, 0.2f);
+    // e = std::make_shared<Element>(t, p, ai);
+    // m_cells.push_back(e);
 
-    p = utils::Point2i(0, -1);
-    ai = std::make_shared<Ant>();
-    e = std::make_shared<Element>(t, p, ai);
-    m_cells.push_back(e);
-# endif
-
-    // Generate pheromons.
-    t = Tile::Pheromon;
-
-    p = utils::Point2i(2, 0);
-    ai = std::make_shared<Pheromon>(1.0f, 0.1f);
-    e = std::make_shared<Element>(t, p, ai);
-    m_cells.push_back(e);
-
-    p = utils::Point2i(-2, 0);
-    ai = std::make_shared<Pheromon>(1.0f, 0.5f);
-    e = std::make_shared<Element>(t, p, ai);
-    m_cells.push_back(e);
-
-    p = utils::Point2i(0, 2);
-    ai = std::make_shared<Pheromon>(1.0f, 0.2f);
-    e = std::make_shared<Element>(t, p, ai);
-    m_cells.push_back(e);
-
-    p = utils::Point2i(0, -2);
-    ai = std::make_shared<Pheromon>(1.0f, 0.4f);
-    e = std::make_shared<Element>(t, p, ai);
-    m_cells.push_back(e);
+    // p = utils::Point2i(0, -2);
+    // ai = std::make_shared<Pheromon>(1.0f, 0.4f);
+    // e = std::make_shared<Element>(t, p, ai);
+    // m_cells.push_back(e);
   }
 
 }
