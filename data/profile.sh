@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Delete previous profiling.
-rm callgrind.out.*
+rm -rf callgrind.out.*
 
 CURR_DIR=$(dirname $0)
 valgrind --tool=callgrind --log-file="analysis" ./bin/cellify
