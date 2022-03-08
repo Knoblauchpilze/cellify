@@ -2,6 +2,7 @@
 # define   ANT_HH
 
 # include "AI.hh"
+# include "Time.hh"
 
 namespace cellify {
 
@@ -37,6 +38,22 @@ namespace cellify {
        */
       bool
       generatePath(Info& info);
+
+      /**
+       * @brief - Used to perform the spawning of a pheromon by
+       *          this ant, at the current position.
+       * @param info - the info to use to spawn the pheromon.
+       */
+      void
+      spawnPheromon(Info& info) noexcept;
+
+    private:
+
+      /**
+       * @brief - The last time a pheromon was emitted by this
+       *          entity.
+       */
+      TimeStamp m_lastPheromon;
   };
 
 }

@@ -1,20 +1,29 @@
 
 # include "Ant.hh"
 # include "AStar.hh"
+# include "Pheromon.hh"
 
 /// @brief - Define the radius into which ants are
 /// allowed to move.
 # define TARGET_RADIUS 10
 
+/// @brief - The interval between emitting a new
+/// pheromone. Expressed in milliseconds.
+# define PHEROMON_SPAWN_INTERVAL 500
+
 namespace cellify {
 
   Ant::Ant():
-    AI("ant")
+    AI("ant"),
+
+    m_lastPheromon()
   {}
 
   void
   Ant::init(Info& info) {
     generatePath(info);
+
+    m_lastPheromon = info.moment;
   }
 
   void
@@ -23,6 +32,11 @@ namespace cellify {
     // a path or not.
     if (info.path.empty()) {
       generatePath(info);
+    }
+
+    // Emit a pheromon if possible.
+    if (m_lastPheromon + millisecondsToDuration(PHEROMON_SPAWN_INTERVAL) < info.moment) {
+      spawnPheromon(info);
     }
   }
 
@@ -43,6 +57,18 @@ namespace cellify {
     }
 
     return ok;
+  }
+
+  void
+  Ant::spawnPheromon(Info& info) noexcept {
+    info.spawned.push_back(Animat{
+      info.pos,
+      std::make_shared<Pheromon>(1.0f, 0.1f)
+    });
+
+    // Update the variables tracking the spawn of a new
+    // pheromone.
+    m_lastPheromon = info.moment;
   }
 
 }

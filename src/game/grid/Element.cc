@@ -2,6 +2,8 @@
 # include "Element.hh"
 # include "Grid.hh"
 # include "Ant.hh"
+# include "Colony.hh"
+# include "Pheromon.hh"
 
 /// @brief - The interval defining two consecutive
 /// moves of an ant in milliseconds.
@@ -13,13 +15,16 @@ namespace {
   tileFromBrain(cellify::AIShPtr brain) noexcept {
     // Based on the type of the AI, assign the correct
     // type of tile.
-    if (std::dynamic_pointer_cast<cellify::Ant>(brain)) {
-      return cellify::Tile::Ant;
+    if (std::dynamic_pointer_cast<cellify::Colony>(brain)) {
+      return cellify::Tile::Colony;
+    }
+    if (std::dynamic_pointer_cast<cellify::Pheromon>(brain)) {
+      return cellify::Tile::Pheromon;
     }
 
-    // Assume it's a colony as the food doesn't have a
+    // Assume it's an ant as the food doesn't have a
     // brain at all.
-    return cellify::Tile::Colony;
+    return cellify::Tile::Ant;
   }
 
 }
