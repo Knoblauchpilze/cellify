@@ -79,6 +79,14 @@ namespace cellify {
        *          prevent weird behaviors to occur.
        */
       bool m_paused;
+
+      /**
+       * @brief - The current time elapsed in the simulation. For each
+       *          second that passes we make a certain amount of time
+       *          pass.
+       *          NOTE: This value is expressed in milliseconds.
+       */
+      float m_timestamp;
   };
 
   using WorldShPtr = std::shared_ptr<World>;

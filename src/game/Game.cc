@@ -115,8 +115,9 @@ namespace pge {
       return true;
     }
 
-    // Step the world.
-    m_world->step(tDelta);
+    // Step the world with a speed adapted to the
+    // current selected speed for the game.
+    m_world->step(m_state.speed * tDelta);
 
     updateUI();
 

@@ -9,7 +9,8 @@ namespace cellify {
     m_rng(),
     m_grid(nullptr),
 
-    m_paused(true)
+    m_paused(true),
+    m_timestamp(zero())
   {
     setService("cellify");
 
@@ -29,15 +30,17 @@ namespace cellify {
       return;
     }
 
+    m_timestamp += 1000.0f * tDelta;
+
     StepInfo si{
-      m_rng,         // rng
+      m_rng,        // rng
 
-      utils::now(),  // moment
-      tDelta,        // elapsed
+      m_timestamp,  // moment
+      tDelta,       // elapsed
 
-      *m_grid,       // grid
+      *m_grid,      // grid
 
-      Elements()     // elements
+      Elements()    // elements
     };
 
     // Simulate elements.
@@ -63,10 +66,8 @@ namespace cellify {
       return;
     }
 
-    utils::TimeStamp n = utils::now();
-
     for (unsigned id = 0u ; id < m_grid->size() ; ++id) {
-      m_grid->at(id).pause(n);
+      m_grid->at(id).pause(m_timestamp);
     }
 
     m_paused = true;
@@ -79,10 +80,8 @@ namespace cellify {
       return;
     }
 
-    utils::TimeStamp n = utils::now();
-
     for (unsigned id = 0u ; id < m_grid->size() ; ++id) {
-      m_grid->at(id).resume(n);
+      m_grid->at(id).resume(m_timestamp);
     }
 
     m_paused = false;

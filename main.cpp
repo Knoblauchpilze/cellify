@@ -12,11 +12,6 @@
 # include "TopViewFrame.hh"
 # include "App.hh"
 
-/// TODO: The simulation speed should be handled through a custom
-/// time provided by the `Game` to the `World` or by the `World`
-/// to the `Grid` and elements. This should not only be an elapsed
-/// time since the last frame.
-
 int
 main(int /*argc*/, char** /*argv*/) {
   // Create the logger.

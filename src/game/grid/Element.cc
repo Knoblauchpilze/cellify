@@ -42,8 +42,8 @@ namespace cellify {
     m_deleted(false),
 
     m_path(),
-    m_last(utils::now()),
-    m_elapsedSinceLast(utils::Duration::zero())
+    m_last(0.0f),
+    m_elapsedSinceLast(zero())
   {
     setService("world");
 
@@ -140,8 +140,8 @@ namespace cellify {
     // to this location if we moved long enough in the
     // past.
     if (!m_path.empty()) {
-      utils::Duration d = info.moment - m_last;
-      if (utils::toMilliseconds(d) >= IDLE_TIME) {
+      Duration d = info.moment - m_last;
+      if (d >= millisecondsToDuration(IDLE_TIME)) {
         m_pos = m_path.advance();
         m_last = info.moment;
       }
@@ -166,19 +166,19 @@ namespace cellify {
   }
 
   void
-  Element::pause(const utils::TimeStamp& t) {
+  Element::pause(const TimeStamp& t) {
     // Update the elapsed time since the last moment
     // the agent moved.
     m_elapsedSinceLast = t - m_last;
   }
 
   void
-  Element::resume(const utils::TimeStamp& t) {
+  Element::resume(const TimeStamp& t) {
     // Restore the last time the agent move so that
     // it is as in the past as indicated by the value
     // of the dedicated attribute.
     m_last = t - m_elapsedSinceLast;
-    m_elapsedSinceLast = utils::Duration::zero();
+    m_elapsedSinceLast = zero();
   }
 
 }

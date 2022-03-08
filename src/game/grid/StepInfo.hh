@@ -4,7 +4,7 @@
 # include <vector>
 # include <memory>
 # include <core_utils/RNG.hh>
-# include <core_utils/TimeUtils.hh>
+# include "Time.hh"
 
 namespace cellify {
 
@@ -30,7 +30,7 @@ namespace cellify {
     utils::RNG& rng;
 
     // The moment at which the processing is taking place.
-    utils::TimeStamp moment;
+    TimeStamp moment;
 
     // The time elapsed since the last call to this method.
     float elapsed;

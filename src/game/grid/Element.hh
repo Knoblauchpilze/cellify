@@ -87,7 +87,7 @@ namespace cellify {
        * @param t - the timestamp at which the pause occur.
        */
       virtual void
-      pause(const utils::TimeStamp& t);
+      pause(const TimeStamp& t);
 
       /**
        * @brief - Opposite operation to the `pause`, this method
@@ -96,7 +96,7 @@ namespace cellify {
        * @param t - the timestamp at which the resume occur.
        */
       virtual void
-      resume(const utils::TimeStamp& t);
+      resume(const TimeStamp& t);
 
     private:
 
@@ -134,13 +134,13 @@ namespace cellify {
       /**
        * @brief - The last time the element moved.
        */
-      utils::TimeStamp m_last;
+      TimeStamp m_last;
 
       /**
        * @brief - The elapsed time compared to the last time
        *          the element moved at the moment of the pause.
        */
-      utils::Duration m_elapsedSinceLast;
+      Duration m_elapsedSinceLast;
   };
 
   using ElementShPtr = std::shared_ptr<Element>;
