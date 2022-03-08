@@ -94,7 +94,9 @@ namespace cellify {
     m_brain->init(i);
 
     // Persist the information.
-    m_pos = m_path.begin();
+    if (!m_path.empty()) {
+      m_pos = m_path.begin();
+    }
     m_deleted = i.selfDestruct;
 
     // Copy the spawned elements.
@@ -137,10 +139,12 @@ namespace cellify {
     // Pick the next position in the path and advance
     // to this location if we moved long enough in the
     // past.
-    utils::Duration d = info.moment - m_last;
-    if (utils::toMilliseconds(d) >= IDLE_TIME) {
-      m_pos = m_path.advance();
-      m_last = info.moment;
+    if (!m_path.empty()) {
+      utils::Duration d = info.moment - m_last;
+      if (utils::toMilliseconds(d) >= IDLE_TIME) {
+        m_pos = m_path.advance();
+        m_last = info.moment;
+      }
     }
 
     // Persist the information.
