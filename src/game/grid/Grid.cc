@@ -66,33 +66,39 @@ namespace cellify {
     return *m_cells[id];
   }
 
-  int
-  Grid::at(int x, int y, bool includeMobs) const noexcept {
+  Indices
+  Grid::at(int x, int y, bool includeNonSolid) const noexcept {
     /// TODO: Optimize the search for elements.
+    Indices out;
+
     unsigned id = 0u;
 
     while (id < m_cells.size()) {
       const ElementShPtr& c = m_cells[id];
 
       bool coordsMatch = (c->pos().x() == x && c->pos().y() == y);
-      if (coordsMatch && (includeMobs || c->type() != Tile::Ant)) {
-        return static_cast<int>(id);
+      if (coordsMatch) {
+        bool isSolid = c->type() == Tile::Colony || c->type() == Tile::Food;
+
+        if (includeNonSolid || isSolid) {
+          out.push_back(static_cast<int>(id));
+        }
       }
 
       ++id;
     }
 
-    return -1;
+    return out;
   }
 
   bool
-  Grid::obstructed(int x, int y, bool includeMobs) const noexcept {
-    return at(x, y, includeMobs) >= 0;
+  Grid::obstructed(int x, int y, bool includeNonSolid) const noexcept {
+    return !at(x, y, includeNonSolid).empty();
   }
 
   bool
-  Grid::obstructed(const utils::Point2i& p, bool includeMobs) const noexcept {
-    return obstructed(p.x(), p.y(), includeMobs);
+  Grid::obstructed(const utils::Point2i& p, bool includeNonSolid) const noexcept {
+    return obstructed(p.x(), p.y(), includeNonSolid);
   }
 
   void
@@ -102,6 +108,15 @@ namespace cellify {
         "Failed to spawn element in grid",
         "Invalid null element"
       );
+    }
+
+    // If the element is a pheromon, try to merge it
+    // with existing elements. We can only do that if
+    // the pheromons have matching types.
+    if (elem->type() == Tile::Pheromon) {
+      if (mergePheromon(elem)) {
+        return;
+      }
     }
 
     log(
@@ -161,6 +176,43 @@ namespace cellify {
         )
       );
     }
+  }
+
+  bool
+  Grid::mergePheromon(ElementShPtr p) noexcept {
+    // Get elements at the position of the pheromon.
+    Indices ids = at(p->pos().x(), p->pos().y(), true);
+
+    // If there are none, nothing to merge.
+    if (ids.empty()) {
+      return false;
+    }
+
+    Scent toMerge = *reinterpret_cast<const Scent*>(p->data());
+
+    // Check for a pheromon with the same scent.
+    unsigned id = 0u;
+
+    while (id < ids.size()) {
+      Element& ex = at(ids[id]);
+
+      // We have to have a pheromon with the same scent.
+      if (ex.type() == Tile::Pheromon) {
+        Scent existingScent = *reinterpret_cast<const Scent*>(ex.data());
+
+        if (toMerge == existingScent) {
+          // Merge both elements.
+          ex.merge(*p);
+
+          return true;
+        }
+      }
+
+      ++id;
+    }
+
+    // We didn't merge the pheromon.
+    return false;
   }
 
 }

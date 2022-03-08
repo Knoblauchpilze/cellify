@@ -120,6 +120,15 @@ namespace cellify {
       virtual void
       resume(const TimeStamp& t);
 
+      /**
+       * @brief - Perform the merge of the two elements assuming
+       *          they have the same type. Otherwise an error is
+       *          raised.
+       * @param rhs - the element to merge.
+       */
+      virtual void
+      merge(const Element& rhs);
+
     private:
 
       /// @brief - A convenience define for the specific data

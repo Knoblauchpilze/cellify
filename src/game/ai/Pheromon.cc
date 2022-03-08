@@ -35,4 +35,15 @@ namespace cellify {
     /// TODO: Include some spreading of the pheromons ?
   }
 
+  void
+  Pheromon::merge(const AI& rhs) {
+    // Consistency check: the cast will prevent merging
+    // invalid types.
+    const Pheromon& p = dynamic_cast<const Pheromon&>(rhs);
+
+    m_amount += p.m_amount;
+    // Avergare the evaporation rate.
+    m_evaporation = 0.5f * (m_evaporation + p.m_evaporation);
+  }
+
 }

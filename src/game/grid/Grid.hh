@@ -13,6 +13,10 @@
 
 namespace cellify {
 
+  /// @brief - Convenience define allowing to represent a list
+  /// of elements indices.
+  using Indices = std::vector<int>;
+
   class Grid: public utils::CoreObject, public Locator {
     public:
 
@@ -71,16 +75,15 @@ namespace cellify {
        *          negative element.
        * @param x - the x coordinate to check.
        * @param y - the y coordinate to check.
-       * @param includeMobs - `true` if mobs should also be
-       *                      checked when searching for an
-       *                      item at the position.
-       * @return - a positive or null value indicating the
-       *           index to use to query the element at the
-       *           specified coordinate or a negative value
-       *           in case the cell is empty.
+       * @param includeNonSolid - `true` in case the obstruction
+       *                          should also include non solid
+       *                          elements such as mobs and pheromons.
+       * @return - a vector containing all the indices of the elements
+       *           which currently have the specified position. Might
+       *           be empty in case the cell is empty.
        */
-      int
-      at(int x, int y, bool includeMobs = false) const noexcept;
+      Indices
+      at(int x, int y, bool includeNonSolid = false) const noexcept;
 
       /**
        * @brief - Determine whether the input coordinates are
@@ -88,19 +91,21 @@ namespace cellify {
        *          called.
        * @param x - the abscissa to check for obstruction.
        * @param y - the ordinate to check for obstruction.
-       * @param includeMobs - `true` in case the obstruction
-       *                      should also include mobs.
+       * @param includeNonSolid - `true` in case the obstruction
+       *                          should also include non solid
+       *                          elements such as mobs and pheromons.
        * @return - `true` if the location is occupied.
        */
       bool
-      obstructed(int x, int y, bool includeMobs = false) const noexcept;
+      obstructed(int x, int y, bool includeNonSolid = false) const noexcept;
 
       /**
        * @brief - Implementation of the interface method to detect
        *          obstructions on the grid.
        * @param p - the coordinates to check for obstruction.
        * @param includeNonSolid - `true` in case the obstruction
-       *                          should also include mobs.
+       *                          should also include non solid
+       *                          elements such as mobs and pheromons.
        * @return - `true` if the location is occupied.
        */
       bool
@@ -130,6 +135,14 @@ namespace cellify {
        */
       void
       initialize(utils::RNG& rng) noexcept;
+
+      /**
+       * @brief - Used to attempt the merge of the input pheromon.
+       * @param p - the pheromon to merge.
+       * @return - `true` in case the pheromon could be merged.
+       */
+      bool
+      mergePheromon(ElementShPtr p) noexcept;
 
     private:
 

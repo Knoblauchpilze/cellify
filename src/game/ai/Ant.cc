@@ -9,7 +9,11 @@
 
 /// @brief - The interval between emitting a new
 /// pheromone. Expressed in milliseconds.
-# define PHEROMON_SPAWN_INTERVAL 500
+# define PHEROMON_SPAWN_INTERVAL 50
+
+/// @brief - The vision frustim of an ant: defines
+/// how far it can perceive blocks.
+# define ANT_VISION_RADIUS 3
 
 namespace cellify {
 
@@ -37,6 +41,7 @@ namespace cellify {
 
   void
   Ant::step(Info& info) {
+    /// TODO: Handle more complex behavior.
     // Update the position based on whether we have
     // a path or not.
     if (info.path.empty()) {
@@ -83,9 +88,14 @@ namespace cellify {
         break;
     }
 
+    // Small randomness in the amount and evaporation rate
+    // of each pheromon.
+    float a = info.rng.rndFloat(1.0f, 1.1f);
+    float e = info.rng.rndFloat(0.1f, 0.12f);
+
     info.spawned.push_back(Animat{
       info.pos,
-      std::make_shared<Pheromon>(s, 1.0f, 0.1f)
+      std::make_shared<Pheromon>(s, a, e)
     });
 
     // Update the variables tracking the spawn of a new

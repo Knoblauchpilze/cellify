@@ -221,8 +221,6 @@ namespace cellify {
 
       ElementShPtr e = std::make_shared<Element>(t, a.pos, a.brain, d);
 
-      /// TODO: Associate data.
-
       info.spawned.push_back(e);
     }
   }
@@ -241,6 +239,26 @@ namespace cellify {
     // of the dedicated attribute.
     m_last = t - m_elapsedSinceLast;
     m_elapsedSinceLast = zero();
+  }
+
+  void
+  Element::merge(const Element& rhs) {
+    // Check relative types.
+    if (type() != rhs.type()) {
+      error(
+        "Failed to merge element at " + pos().toString() + " and " + rhs.pos().toString(),
+        "Elements have respective type " + tileToString(type()) + " and " + tileToString(rhs.type())
+      );
+    }
+
+    if (m_brain == nullptr || rhs.m_brain == nullptr) {
+      error(
+        "Failed to merge element at " + pos().toString(),
+        "Elements don't both have a brain"
+      );
+    }
+
+    m_brain->merge(*rhs.m_brain);
   }
 
 }

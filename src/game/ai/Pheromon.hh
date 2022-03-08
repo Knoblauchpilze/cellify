@@ -46,6 +46,15 @@ namespace cellify {
       void
       step(Info& info) override;
 
+      /**
+       * @brief - Implementation of the interface method allowing
+       *          to merge the content of two pheromons. In this
+       *          case it means adding the amounts.
+       * @param rhs - the pheromon to merge.
+       */
+      void
+      merge(const AI& rhs) override;
+
     private:
 
       /**

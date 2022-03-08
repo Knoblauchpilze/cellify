@@ -35,6 +35,16 @@ namespace cellify {
       virtual void
       step(Info& info) = 0;
 
+      /**
+       * @brief - Interface method allowing to merge the content
+       *          of an AI with another. Depending on the concrete
+       *          type it can mean various things.
+       *          The default implementation is to raise an error.
+       * @param rhs - the AI to merge.
+       */
+      virtual void
+      merge(const AI& rhs);
+
     protected:
 
       /**

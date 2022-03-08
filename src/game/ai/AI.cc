@@ -9,4 +9,9 @@ namespace cellify {
     setService("ai");
   }
 
+  void
+  AI::merge(const AI& rhs) {
+    error("Unsupported merge operation with " + rhs.getName());
+  }
+
 }
