@@ -11,7 +11,8 @@ namespace cellify {
   enum class Tile {
     Colony,
     Ant,
-    Food
+    Food,
+    Pheromon
   };
 
   /**

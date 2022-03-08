@@ -13,6 +13,8 @@ namespace {
         return olc::BLUE;
       case cellify::Tile::Food:
         return olc::GREEN;
+      case cellify::Tile::Pheromon:
+        return olc::ORANGE;
       default:
         // Error case.
         return olc::RED;

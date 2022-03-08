@@ -1,6 +1,7 @@
 
 # include <Grid.hh>
 # include "Ant.hh"
+# include "Pheromon.hh"
 
 /// @brief - The radius of the food circle around the
 /// central colony.
@@ -109,6 +110,8 @@ namespace cellify {
   Grid::update() noexcept {
     // Use the standard algorithm to remove elements
     // that have been marked for deletion.
+    unsigned sz = m_cells.size();
+
     m_cells.erase(
       std::remove_if(
         m_cells.begin(),
@@ -119,18 +122,18 @@ namespace cellify {
       ),
       m_cells.end()
     );
+
+    if (sz != m_cells.size()) {
+      log("Removed " + std::to_string(sz - m_cells.size()) + " agent(s)");
+    }
   }
 
   void
   Grid::initialize(utils::RNG& /*rng*/) noexcept {
     // Generate an anthill at the origin of the world.
-    m_cells.push_back(
-      std::make_shared<Element>(
-        Tile::Colony,
-        utils::Point2i(),
-        nullptr
-      )
-    );
+    m_cells.push_back(std::make_shared<Element>(
+      Tile::Colony, utils::Point2i(), nullptr
+    ));
 
     // Generate a ring of food around it with a certain
     // radius.
@@ -177,6 +180,29 @@ namespace cellify {
     e = std::make_shared<Element>(t, p, ai);
     m_cells.push_back(e);
 # endif
+
+    // Generate pheromons.
+    t = Tile::Pheromon;
+
+    p = utils::Point2i(2, 0);
+    ai = std::make_shared<Pheromon>(1.0f, 0.1f);
+    e = std::make_shared<Element>(t, p, ai);
+    m_cells.push_back(e);
+
+    p = utils::Point2i(-2, 0);
+    ai = std::make_shared<Pheromon>(1.0f, 0.5f);
+    e = std::make_shared<Element>(t, p, ai);
+    m_cells.push_back(e);
+
+    p = utils::Point2i(0, 2);
+    ai = std::make_shared<Pheromon>(1.0f, 0.2f);
+    e = std::make_shared<Element>(t, p, ai);
+    m_cells.push_back(e);
+
+    p = utils::Point2i(0, -2);
+    ai = std::make_shared<Pheromon>(1.0f, 0.4f);
+    e = std::make_shared<Element>(t, p, ai);
+    m_cells.push_back(e);
   }
 
 }
