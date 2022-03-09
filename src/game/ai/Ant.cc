@@ -3,25 +3,38 @@
 # include "AStar.hh"
 # include "Pheromon.hh"
 
-/// @brief - Define the radius into which ants are
-/// allowed to move.
-# define TARGET_RADIUS 10
+/// @brief - The vision frustim of an ant: defines
+/// how far it can perceive blocks. It is also used
+/// to define how far a random target can be picked
+/// from the current ant's position.
+# define ANT_VISION_RADIUS 5
 
 /// @brief - The interval between emitting a new
 /// pheromone. Expressed in milliseconds.
-# define PHEROMON_SPAWN_INTERVAL 50
-
-/// @brief - The vision frustim of an ant: defines
-/// how far it can perceive blocks.
-# define ANT_VISION_RADIUS 3
+# define PHEROMON_SPAWN_INTERVAL 500
 
 namespace cellify {
+
+  std::string
+  behaviorToString(const Behavior& b) noexcept {
+    switch (b) {
+      case Behavior::Wander:
+        return "wannder";
+      case Behavior::Food:
+        return "food";
+      case Behavior::Return:
+        return "return";
+      default:
+        return "unknown";
+    }
+  }
 
   Ant::Ant():
     AI("ant"),
 
     m_behavior(Behavior::Wander),
-    m_lastPheromon()
+    m_lastPheromon(),
+    m_target(nullptr)
   {}
 
   Behavior
@@ -41,11 +54,21 @@ namespace cellify {
 
   void
   Ant::step(Info& info) {
-    /// TODO: Handle more complex behavior.
-    // Update the position based on whether we have
-    // a path or not.
-    if (info.path.empty()) {
-      generatePath(info);
+    // Check the behavior and handle the definition of a new
+    // target.
+    switch (m_behavior) {
+      case Behavior::Food:
+        food(info);
+        break;
+      case Behavior::Return:
+        returnHome(info);
+        break;
+      default:
+        warn("Unknown behavior " + behaviorToString(m_behavior));
+        [[fallthrough]];
+      case Behavior::Wander:
+        wander(info);
+        break;
     }
 
     // Emit a pheromon if possible.
@@ -56,11 +79,15 @@ namespace cellify {
 
   bool
   Ant::generatePath(Info& info) {
-    // Pick a random target and find a path to it.
-    int x = info.rng.rndInt(info.pos.x() - TARGET_RADIUS, info.pos.x() + TARGET_RADIUS);
-    int y = info.rng.rndInt(info.pos.y() - TARGET_RADIUS, info.pos.y() + TARGET_RADIUS);
+    // Pick a random target and find a path to it if needed.
+    if (m_target == nullptr) {
+      int x = info.rng.rndInt(info.pos.x() - ANT_VISION_RADIUS, info.pos.x() + ANT_VISION_RADIUS);
+      int y = info.rng.rndInt(info.pos.y() - ANT_VISION_RADIUS, info.pos.y() + ANT_VISION_RADIUS);
 
-    AStar astar(info.pos, utils::Point2i(x, y), info.locator);
+      m_target = std::make_shared<utils::Point2i>(x, y);
+    }
+
+    AStar astar(info.pos, *m_target, info.locator);
     bool ok = astar.findPath(info.path, -1.0f, false);
     if (!ok) {
       warn("Failed to find a path for the and");
@@ -101,6 +128,33 @@ namespace cellify {
     // Update the variables tracking the spawn of a new
     // pheromone.
     m_lastPheromon = info.moment;
+  }
+
+  void
+  Ant::wander(Info& info) {
+    /// TODO: Handle the wandering behavior.
+    if (info.path.empty()) {
+      m_target.reset();
+      generatePath(info);
+    }
+  }
+
+  void
+  Ant::food(Info& info) {
+    /// TODO: Handle the food behavior.
+    if (info.path.empty()) {
+      m_target.reset();
+      generatePath(info);
+    }
+  }
+
+  void
+  Ant::returnHome(Info& info) {
+    /// TODO: Handle the return home behavior.
+    if (info.path.empty()) {
+      m_target.reset();
+      generatePath(info);
+    }
   }
 
 }

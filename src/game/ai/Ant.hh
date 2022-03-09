@@ -15,6 +15,14 @@ namespace cellify {
     Return
   };
 
+  /**
+   * @brief - Generate a human readable string for a behavior.
+   * @param b - the behavior.
+   * @return - a string representing this behavior.
+   */
+  std::string
+  behaviorToString(const Behavior& b) noexcept;
+
   class Ant: public AI {
     public:
 
@@ -63,7 +71,31 @@ namespace cellify {
       void
       spawnPheromon(Info& info) noexcept;
 
+      /**
+       * @brief - Handle the wandering behavior.
+       * @param info - the info to use to perform the behavior.
+       */
+      void
+      wander(Info& info);
+
+      /**
+       * @brief - Handle the go to food behavior.
+       * @param info - the info to use to perform the behavior.
+       */
+      void
+      food(Info& info);
+
+      /**
+       * @brief - Handle the return to home behavior.
+       * @param info - the info to use to perform the behavior.
+       */
+      void
+      returnHome(Info& info);
+
     private:
+
+      /// @brief - Convenience representation of an optional target.
+      using OptTarget = std::shared_ptr<utils::Point2i>;
 
       /**
        * @brief - The beahvior currently active for the ant.
@@ -75,6 +107,13 @@ namespace cellify {
        *          entity.
        */
       TimeStamp m_lastPheromon;
+
+      /**
+       * @brief - The current target of the ant. Might be empty
+       *          in which case we have to generate a new random
+       *          one.
+       */
+      OptTarget m_target;
   };
 
   using AntShPtr = std::shared_ptr<Ant>;
