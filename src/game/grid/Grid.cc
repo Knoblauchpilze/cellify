@@ -101,6 +101,40 @@ namespace cellify {
     return obstructed(p.x(), p.y(), includeNonSolid);
   }
 
+  Indices
+  Grid::visible(const utils::Point2i& p,
+                float d) const noexcept
+  {
+    Indices out;
+
+    unsigned id = 0u;
+
+    while (id < m_cells.size()) {
+      const ElementShPtr& c = m_cells[id];
+
+      float dx = c->pos().x() - p.x();
+      float dy = c->pos().y() - p.y();
+
+      float dst = std::sqrt(dx * dx + dy * dy);
+      if (dst < d) {
+        out.push_back(static_cast<int>(id));
+      }
+
+      ++id;
+    }
+
+    return out;
+  }
+
+  const void*
+  Grid::get(unsigned id) const noexcept {
+    if (id > m_cells.size()) {
+      return nullptr;
+    }
+
+    return &m_cells[id];
+  }
+
   void
   Grid::spawn(ElementShPtr elem) {
     if (elem == nullptr) {

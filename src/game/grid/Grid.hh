@@ -113,6 +113,28 @@ namespace cellify {
                  bool includeNonSolid = false) const noexcept override;
 
       /**
+       * @brief - Implementation of the interface method to find the
+       *          visible objects within a certain area.
+       * @param p - the center of the area to consider.
+       * @param d - the distance within which elements should be.
+       * @return - the list of elements that are visible.
+       */
+      Indices
+      visible(const utils::Point2i& p,
+              float d) const noexcept override;
+
+      /**
+       * @brief - Implementation of the interface method to fetch the
+       *          element at the specified index. We return null if
+       *          the element doesn't exist.
+       * @param id - the index of the element to return.
+       * @return - a pointer to the element or null in case if it does
+       *           not exist.
+       */
+      const void*
+      get(unsigned id) const noexcept override;
+
+      /**
        * @brief - Spawns a new element in the grid and register
        *          it into the internal structure.
        * @param elem - the element to spawn.
