@@ -18,10 +18,12 @@ namespace cellify {
       /**
        * @brief - Creates a new pheromon with the specified amount.
        * @param scent - the type for this pheromon.
+       * @param created - the creation timestamp for this pheromon.
        * @param amount - the amount of pheromon initially.
        * @param evaporation - the evaporation rate in unit per second.
        */
       Pheromon(const Scent& scent,
+               const TimeStamp& created,
                float amount,
                float evaporation);
 
@@ -31,6 +33,13 @@ namespace cellify {
        */
       Scent
       kind() const noexcept;
+
+      /**
+       * @brief - Return the creation date of the pheromon.
+       * @return - the creation date of the pheromon.
+       */
+      const TimeStamp&
+      created() const noexcept;
 
       /**
        * @brief - Implementation of the initialization method.
@@ -61,6 +70,11 @@ namespace cellify {
        * @brief - The type of the pheromon.
        */
       Scent m_scent;
+
+      /**
+       * @brief - The creation time for the pheromon.
+       */
+      TimeStamp m_created;
 
       /**
        * @brief - The amount of pheromon available.

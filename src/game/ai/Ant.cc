@@ -328,7 +328,7 @@ namespace cellify {
       out.y() += el->pos().y();
 
       // The weight is based on the creation time.
-      /// TODO: Handle this.
+      /// TODO: Handle weight of pheromon based on creation time.
       weight += 1.0f;
 
       ++count;

@@ -47,13 +47,19 @@ namespace {
     }
     cellify::PheromonShPtr p = std::dynamic_pointer_cast<cellify::Pheromon>(brain);
     if (p) {
-      out.resize(sizeof(cellify::Scent));
+      out.resize(sizeof(cellify::Scent) + sizeof(cellify::TimeStamp));
       cellify::Scent s = p->kind();
+      cellify::TimeStamp c = p->created();
 
       std::memcpy(
         out.data(),
         reinterpret_cast<const char*>(&s),
         sizeof(cellify::Scent)
+      );
+      std::memcpy(
+        out.data() + sizeof(cellify::Scent),
+        reinterpret_cast<const char*>(&c),
+        sizeof(cellify::TimeStamp)
       );
     }
 

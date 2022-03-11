@@ -4,11 +4,14 @@
 namespace cellify {
 
   Pheromon::Pheromon(const Scent& scent,
+                     const TimeStamp& created,
                      float amount,
                      float evaporation):
     AI("pheromon"),
 
     m_scent(scent),
+
+    m_created(created),
 
     m_amount(amount),
     m_evaporation(evaporation)
@@ -17,6 +20,11 @@ namespace cellify {
   Scent
   Pheromon::kind() const noexcept {
     return m_scent;
+  }
+
+  const TimeStamp&
+  Pheromon::created() const noexcept {
+    return m_created;
   }
 
   void
