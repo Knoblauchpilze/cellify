@@ -1,7 +1,6 @@
 
 # include "Ant.hh"
 # include "AStar.hh"
-# include "Pheromon.hh"
 # include "Element.hh"
 
 /// @brief - The vision frustim of an ant: defines
@@ -130,7 +129,7 @@ namespace cellify {
 
     info.spawned.push_back(Animat{
       info.pos,
-      std::make_shared<Pheromon>(s, a, e)
+      std::make_shared<Pheromon>(s, info.moment, a, e)
     });
 
     // Update the variables tracking the spawn of a new
@@ -187,31 +186,12 @@ namespace cellify {
     // which the average of the position of pheromons
     // for food.
     utils::Point2i avg;
-    unsigned count = 0u;
-
-    for (unsigned id = 0u ; id < items.size() ; ++id) {
-      const Element* el = reinterpret_cast<const Element*>(info.locator.get(items[id]));
-      if (el->type() != Tile::Pheromon) {
-        continue;
-      }
-
-      // Only consider food which leads to food.
-      Scent scent = *reinterpret_cast<const Scent*>(el->data());
-      if (scent != Scent::Food) {
-        continue;
-      }
-
-      avg.x() += el->pos().x();
-      avg.y() += el->pos().y();
-      ++count;
-    }
-
-    // In case we didn't find any target, fallback to
-    // random target.
-    if (count == 0u) {
+    if (!aggregatePheromomns(info, items, Scent::Food, avg)) {
+      // No pheromons of this type were found, use a
+      // random target.
       if (info.path.empty()) {
 
-        log("Nothing relevant seen by ant (out of " + std::to_string(items.size()) + " element(s)), choosing random position");
+        log("No relevant food pheromon(s) seen by ant (out of " + std::to_string(items.size()) + " element(s)), choosing random position");
 
         m_target.reset();
         generatePath(info);
@@ -220,9 +200,6 @@ namespace cellify {
       return;
     }
 
-    avg.x() = static_cast<int>(std::round(1.0f * avg.x() / count));
-    avg.y() = static_cast<int>(std::round(1.0f * avg.y() / count));
-
     // In case the average is the same as the target (which
     // means we didn't find a new pheromon) continue on the
     // same path.
@@ -230,7 +207,7 @@ namespace cellify {
       return;
     }
 
-    log("Picked target " + avg.toString() + " from " + std::to_string(count) + " food pheromon(s)");
+    log("Picked target " + avg.toString() + " from " + std::to_string(items.size()) + " visible item(s)");
 
     m_target = std::make_shared<utils::Point2i>(avg.x(), avg.y());
     generatePath(info);
@@ -295,34 +272,14 @@ namespace cellify {
 
     // In case we didn't find anything, pick a target
     // which the average of the position of pheromons
-    // for home.
+    // for food.
     utils::Point2i avg;
-    unsigned count = 0u;
-
-    for (unsigned id = 0u ; id < items.size() ; ++id) {
-      const Element* el = reinterpret_cast<const Element*>(info.locator.get(items[id]));
-      if (el->type() != Tile::Pheromon) {
-        continue;
-      }
-
-      // Only consider food which leads to food.
-      Scent scent = *reinterpret_cast<const Scent*>(el->data());
-      if (scent != Scent::Home) {
-        continue;
-      }
-
-      avg.x() += el->pos().x();
-      avg.y() += el->pos().y();
-      ++count;
-    }
-
-
-    // In case we didn't find any target, fallback to
-    // random target.
-    if (count == 0u) {
+    if (!aggregatePheromomns(info, items, Scent::Home, avg)) {
+      // No pheromons of this type were found, use a
+      // random target.
       if (info.path.empty()) {
 
-        log("Nothing relevant seen by ant (out of " + std::to_string(items.size()) + " element(s)), choosing random position");
+        log("No relevant home pheromon(s) seen by ant (out of " + std::to_string(items.size()) + " element(s)), choosing random position");
 
         m_target.reset();
         generatePath(info);
@@ -331,9 +288,6 @@ namespace cellify {
       return;
     }
 
-    avg.x() = static_cast<int>(std::round(1.0f * avg.x() / count));
-    avg.y() = static_cast<int>(std::round(1.0f * avg.y() / count));
-
     // In case the average is the same as the target (which
     // means we didn't find a new pheromon) continue on the
     // same path.
@@ -341,7 +295,7 @@ namespace cellify {
       return;
     }
 
-    log("Picked target " + avg.toString() + " from " + std::to_string(count) + " home pheromon(s)");
+    log("Picked target " + avg.toString() + " from " + std::to_string(items.size()) + " visible item(s)");
 
     m_target = std::make_shared<utils::Point2i>(avg.x(), avg.y());
     generatePath(info);
@@ -357,6 +311,51 @@ namespace cellify {
 
     log("Reached colony at " + info.pos.toString() + ", going back to wander");
     m_behavior = Behavior::Wander;
+  }
+
+  bool
+  Ant::aggregatePheromomns(Info& info,
+                           const std::vector<int>& items,
+                           const Scent& scent,
+                           utils::Point2i& out) const
+  {
+    unsigned count = 0u;
+    float weight = 0.0f;
+
+    out = utils::Point2i(0, 0);
+
+    for (unsigned id = 0u ; id < items.size() ; ++id) {
+      const Element* el = reinterpret_cast<const Element*>(info.locator.get(items[id]));
+      if (el->type() != Tile::Pheromon) {
+        continue;
+      }
+
+      // Only consider food which leads to food.
+      Scent sc = *reinterpret_cast<const Scent*>(el->data());
+      if (sc != scent) {
+        continue;
+      }
+
+      out.x() += el->pos().x();
+      out.y() += el->pos().y();
+
+      // The weight is based on the creation time.
+      /// TODO: Handle this.
+      weight += 1.0f;
+
+      ++count;
+    }
+
+    // In case we didn't find any target, fallback to
+    // random target.
+    if (count == 0u) {
+      return false;
+    }
+
+    out.x() = static_cast<int>(std::round(1.0f * out.x() / count));
+    out.y() = static_cast<int>(std::round(1.0f * out.y() / count));
+
+    return true;
   }
 
 }

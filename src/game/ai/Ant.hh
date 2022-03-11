@@ -5,6 +5,7 @@
 # include <core_utils/Uuid.hh>
 # include "AI.hh"
 # include "Time.hh"
+# include "Pheromon.hh"
 
 namespace cellify {
 
@@ -105,6 +106,24 @@ namespace cellify {
        */
       void
       deposit(Info& info, const std::vector<int>& items);
+
+      /**
+       * @brief - Used to aggregate a path from the pheromons
+       *          with a type matching the input one.
+       * @param info - the infor to aggregate pheromons.
+       * @param items - the list of items from which some of
+       *                them are pheromons.
+       * @param scent - the scent of the pheromon to aggregate.
+       * @param out - the output position aggregating from the
+       *              available pheromons.
+       * @return - `true` if at least one pheromon could be
+       *           found (and so the position is valid).
+       */
+      bool
+      aggregatePheromomns(Info& info,
+                          const std::vector<int>& items,
+                          const Scent& scent,
+                          utils::Point2i& out) const;
 
     private:
 
