@@ -5,6 +5,7 @@
 # include <core_utils/Uuid.hh>
 # include "AI.hh"
 # include "Time.hh"
+# include "Element.hh"
 # include "Pheromon.hh"
 
 namespace cellify {
@@ -108,14 +109,33 @@ namespace cellify {
       deposit(Info& info, const std::vector<int>& items);
 
       /**
+       * @brief - Find the closest target of the input type and
+       *          return its position.
+       * @param info - the info to find a target of the input type.
+       * @param items - the list of items from which some of them
+       *                might be of the input type.
+       * @param tile - the type of target to find.
+       * @param out - the output position of the target. Should
+       *              be ignored if the return value is `false`.
+       * @return - `true` in case a target of the input kind has
+       *           been found.
+       */
+      bool
+      findClosest(Info& info,
+                  const std::vector<int>& items,
+                  const Tile& tile,
+                  utils::Point2i& out) const noexcept;
+
+      /**
        * @brief - Used to aggregate a path from the pheromons
        *          with a type matching the input one.
-       * @param info - the infor to aggregate pheromons.
+       * @param info - the info to aggregate pheromons.
        * @param items - the list of items from which some of
        *                them are pheromons.
        * @param scent - the scent of the pheromon to aggregate.
        * @param out - the output position aggregating from the
-       *              available pheromons.
+       *              available pheromons. Should be ignored if
+       *              the return value is `false`.
        * @return - `true` if at least one pheromon could be
        *           found (and so the position is valid).
        */
@@ -123,7 +143,7 @@ namespace cellify {
       aggregatePheromomns(Info& info,
                           const std::vector<int>& items,
                           const Scent& scent,
-                          utils::Point2i& out) const;
+                          utils::Point2i& out) const noexcept;
 
     private:
 

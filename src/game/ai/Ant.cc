@@ -1,7 +1,6 @@
 
 # include "Ant.hh"
 # include "AStar.hh"
-# include "Element.hh"
 
 /// @brief - The vision frustim of an ant: defines
 /// how far it can perceive blocks. It is also used
@@ -139,39 +138,16 @@ namespace cellify {
 
   void
   Ant::wander(Info& info, const std::vector<int>& items) {
-    // Check for foor sources and find the closest one.
-    utils::Point2i best = info.pos;
-    float d = std::numeric_limits<float>::max();
-    bool found = false;
-
-    for (unsigned id = 0u ; id < items.size() ; ++id) {
-      const Element* el = reinterpret_cast<const Element*>(info.locator.get(items[id]));
-
-      if (el->type() != Tile::Food) {
-        continue;
-      }
-
-      found = true;
-      float dx = el->pos().x() - info.pos.x();
-      float dy = el->pos().y() - info.pos.y();
-      float dist = std::sqrt(dx * dx + dy * dy);
-
-      if (dist > d) {
-        continue;
-      }
-
-      d = dist;
-      best = el->pos();
-    }
-
-    if (found) {
+    // Check for for food sources and find the closest one.
+    utils::Point2i best;
+    if (findClosest(info, items, Tile::Food, best)) {
       // In case the path is not yet directed towards
-      // this food source, generate a new path.
+      // this colony, generate a new path.
       if (info.path.end() == best) {
         return;
       }
 
-      log("Found food at " + best.toString());
+      log("Found food source at " + best.toString());
 
       m_target = std::make_shared<utils::Point2i>(best.x(), best.y());
       generatePath(info);
@@ -227,32 +203,9 @@ namespace cellify {
 
   void
   Ant::returnHome(Info& info, const std::vector<int>& items) {
-    // Check for foor colonies and find the closest one.
-    utils::Point2i best = info.pos;
-    float d = std::numeric_limits<float>::max();
-    bool found = false;
-
-    for (unsigned id = 0u ; id < items.size() ; ++id) {
-      const Element* el = reinterpret_cast<const Element*>(info.locator.get(items[id]));
-
-      if (el->type() != Tile::Colony) {
-        continue;
-      }
-
-      found = true;
-      float dx = el->pos().x() - info.pos.x();
-      float dy = el->pos().y() - info.pos.y();
-      float dist = std::sqrt(dx * dx + dy * dy);
-
-      if (dist > d) {
-        continue;
-      }
-
-      d = dist;
-      best = el->pos();
-    }
-
-    if (found) {
+    // Check for for colonies and find the closest one.
+    utils::Point2i best;
+    if (findClosest(info, items, Tile::Colony, best)) {
       // In case the path is not yet directed towards
       // this colony, generate a new path.
       if (info.path.end() == best) {
@@ -314,10 +267,45 @@ namespace cellify {
   }
 
   bool
+  Ant::findClosest(Info& info,
+                   const std::vector<int>& items,
+                   const Tile& tile,
+                   utils::Point2i& out) const noexcept
+  {
+    out = utils::Point2i();
+    float d = std::numeric_limits<float>::max();
+    bool found = false;
+
+    // Check for for elements of the input type and find
+    // the closest one.
+    for (unsigned id = 0u ; id < items.size() ; ++id) {
+      const Element* el = reinterpret_cast<const Element*>(info.locator.get(items[id]));
+
+      if (el->type() != tile) {
+        continue;
+      }
+
+      found = true;
+      float dx = el->pos().x() - info.pos.x();
+      float dy = el->pos().y() - info.pos.y();
+      float dist = std::sqrt(dx * dx + dy * dy);
+
+      if (dist > d) {
+        continue;
+      }
+
+      d = dist;
+      out = el->pos();
+    }
+
+    return found;
+  }
+
+  bool
   Ant::aggregatePheromomns(Info& info,
                            const std::vector<int>& items,
                            const Scent& scent,
-                           utils::Point2i& out) const
+                           utils::Point2i& out) const noexcept
   {
     unsigned count = 0u;
     float weight = 0.0f;
