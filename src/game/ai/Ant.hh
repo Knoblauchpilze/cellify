@@ -2,6 +2,7 @@
 # define   ANT_HH
 
 # include <memory>
+# include <core_utils/Uuid.hh>
 # include "AI.hh"
 # include "Time.hh"
 
@@ -12,7 +13,8 @@ namespace cellify {
   enum class Behavior {
     Wander,
     Food,
-    Return
+    Return,
+    Deposit
   };
 
   /**
@@ -28,8 +30,9 @@ namespace cellify {
 
       /**
        * @brief - Creates a new ant.
+       * @param uuid - the identifier of the body of the ant.
        */
-      Ant();
+      Ant(const utils::Uuid& uuid);
 
       /**
        * @brief - Return the current behavior for the ant.
@@ -74,23 +77,34 @@ namespace cellify {
       /**
        * @brief - Handle the wandering behavior.
        * @param info - the info to use to perform the behavior.
+       * @param items - the items that are visible to the ant.
        */
       void
-      wander(Info& info);
+      wander(Info& info, const std::vector<int>& items);
 
       /**
        * @brief - Handle the go to food behavior.
        * @param info - the info to use to perform the behavior.
+       * @param items - the items that are visible to the ant.
        */
       void
-      food(Info& info);
+      food(Info& info, const std::vector<int>& items);
 
       /**
        * @brief - Handle the return to home behavior.
        * @param info - the info to use to perform the behavior.
+       * @param items - the items that are visible to the ant.
        */
       void
-      returnHome(Info& info);
+      returnHome(Info& info, const std::vector<int>& items);
+
+      /**
+       * @brief - Handle the deposit behavior.
+       * @param info - the info to use to perform the behavior.
+       * @param items - the items that are visible to the ant.
+       */
+      void
+      deposit(Info& info, const std::vector<int>& items);
 
     private:
 

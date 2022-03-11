@@ -132,7 +132,7 @@ namespace cellify {
       return nullptr;
     }
 
-    return &m_cells[id];
+    return m_cells[id].get();
   }
 
   void
@@ -188,7 +188,7 @@ namespace cellify {
   Grid::initialize(utils::RNG& /*rng*/) noexcept {
     // Generate an anthill at the origin of the world.
     m_cells.push_back(std::make_shared<Element>(
-      Tile::Colony, utils::Point2i(), std::make_shared<Colony>()
+      Tile::Colony, utils::Point2i(), std::make_shared<Colony>(utils::Uuid::create())
     ));
 
     // Generate a ring of food around it with a certain

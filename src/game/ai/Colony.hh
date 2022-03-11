@@ -1,6 +1,7 @@
 #ifndef    COLONY_HH
 # define   COLONY_HH
 
+# include <core_utils/Uuid.hh>
 # include "AI.hh"
 # include "Time.hh"
 
@@ -11,8 +12,9 @@ namespace cellify {
 
       /**
        * @brief - Creates a new colony.
+       * @param uuid - the identifier of the colony.
        */
-      Colony();
+      Colony(const utils::Uuid& uuid);
 
       /**
        * @brief - Implementation of the initialization method.

@@ -12,8 +12,8 @@
 
 namespace cellify {
 
-  Colony::Colony():
-    AI("colony"),
+  Colony::Colony(const utils::Uuid& uuid):
+    AI("colony-" + uuid.toString()),
 
     m_budget(50.0f),
     m_antCost(50.0f),
@@ -57,7 +57,7 @@ namespace cellify {
       return;
     }
 
-    AIShPtr brain = std::make_shared<Ant>();
+    AIShPtr brain = std::make_shared<Ant>(utils::Uuid::create());
 
     info.spawned.push_back(Animat{p, brain});
 
