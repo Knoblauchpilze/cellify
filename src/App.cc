@@ -286,6 +286,11 @@ namespace pge {
 
       sd.sprite.tint = colorFromTile(e.type(), e.data());
 
+      // Make pheromons not fully opaque.
+      if (e.type() == cellify::Tile::Pheromon) {
+        sd.sprite.tint.a = alpha::AlmostOpaque;
+      }
+
       drawRect(sd, res.cf);
     }
   }
