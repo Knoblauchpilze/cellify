@@ -12,13 +12,66 @@
 /// pheromone. Expressed in milliseconds.
 # define PHEROMON_SPAWN_INTERVAL 500
 
+namespace {
+
+  unsigned
+  determineWeights(const cellify::Info& info,
+                   const std::vector<int>& items,
+                   const cellify::Scent& scent,
+                   float& wMin,
+                   float& wMax,
+                   float& weight)
+  {
+    unsigned count = 0u;
+    weight = 0.0f;
+
+    // Aggregate the maximum and minimum weights.
+    wMin = std::numeric_limits<float>::max();
+    wMax = std::numeric_limits<float>::lowest();
+
+    for (unsigned id = 0u ; id < items.size() ; ++id) {
+      const cellify::Element* el = reinterpret_cast<const cellify::Element*>(info.locator.get(items[id]));
+      if (el->type() != cellify::Tile::Pheromon) {
+        continue;
+      }
+
+      // Only consider food which leads to food.
+      cellify::Scent sc = *reinterpret_cast<const cellify::Scent*>(el->data());
+      if (sc != scent) {
+        continue;
+      }
+
+      // The weight is based on the creation time.
+      cellify::TimeStamp ts = *reinterpret_cast<const cellify::TimeStamp*>(el->data() + sizeof(cellify::Scent));
+      cellify::Duration d = info.moment - ts;
+
+      // A crude estimate is to convert to seconds, and then to
+      // use that value as a weight: the longer a pheromon has
+      // been around, the more important it will be considered.
+      float w = d / 1000.0f;
+      if (w < wMin) {
+        wMin = w;
+      }
+      if (w > wMax) {
+        wMax = w;
+      }
+
+      weight += w;
+      ++count;
+    }
+
+    return count;
+  }
+
+}
+
 namespace cellify {
 
   std::string
   behaviorToString(const Behavior& b) noexcept {
     switch (b) {
       case Behavior::Wander:
-        return "wannder";
+        return "wander";
       case Behavior::Food:
         return "food";
       case Behavior::Return:
@@ -144,7 +197,7 @@ namespace cellify {
     if (findClosest(info, items, Tile::Food, best)) {
       // In case the path is not yet directed towards
       // this colony, generate a new path.
-      if (info.path.end() == best) {
+      if (!info.path.empty() && info.path.end() == best) {
         return;
       }
 
@@ -184,7 +237,7 @@ namespace cellify {
       return;
     }
 
-    log("Picked target " + avg.toString() + " from " + std::to_string(items.size()) + " visible item(s)");
+    log("Picked target " + avg.toString() + " to wander to from " + std::to_string(items.size()) + " visible item(s)");
 
     m_target = std::make_shared<utils::Point2i>(avg.x(), avg.y());
     generatePath(info);
@@ -209,7 +262,7 @@ namespace cellify {
     if (findClosest(info, items, Tile::Colony, best)) {
       // In case the path is not yet directed towards
       // this colony, generate a new path.
-      if (info.path.end() == best) {
+      if (!info.path.empty() && info.path.end() == best) {
         return;
       }
 
@@ -249,7 +302,7 @@ namespace cellify {
       return;
     }
 
-    log("Picked target " + avg.toString() + " from " + std::to_string(items.size()) + " visible item(s)");
+    log("Picked target " + avg.toString() + " to return to from " + std::to_string(items.size()) + " visible item(s)");
 
     m_target = std::make_shared<utils::Point2i>(avg.x(), avg.y());
     generatePath(info);
@@ -308,10 +361,6 @@ namespace cellify {
                            const Scent& scent,
                            utils::Point2i& out) const noexcept
   {
-    unsigned count = 0u;
-    float weight = 0.0f;
-
-    utils::Point2f temp;
     out = utils::Point2i(0, 0);
 
     // While aggregating the pheromons, we want to give a
@@ -321,35 +370,11 @@ namespace cellify {
     // We first have to accumulate the total weight that
     // is desired, so that we can somehow normalize all
     // of the individual weights.
-    float min = std::numeric_limits<float>::max();
+    float weight = 0.0f;
+    float wMin = std::numeric_limits<float>::max();
+    float wMax = std::numeric_limits<float>::lowest();
 
-    for (unsigned id = 0u ; id < items.size() ; ++id) {
-      const Element* el = reinterpret_cast<const Element*>(info.locator.get(items[id]));
-      if (el->type() != Tile::Pheromon) {
-        continue;
-      }
-
-      // Only consider food which leads to food.
-      Scent sc = *reinterpret_cast<const Scent*>(el->data());
-      if (sc != scent) {
-        continue;
-      }
-
-      // The weight is based on the creation time.
-      TimeStamp ts = *reinterpret_cast<const TimeStamp*>(el->data() + sizeof(Scent));
-      Duration d = info.moment - ts;
-
-      // A crude estimate is to convert to seconds, and then to
-      // use that value as a weight: the longer a pheromon has
-      // been around, the more important it will be considered.
-      float w = d / 1000.0f;
-      if (w < min) {
-        min = w;
-      }
-
-      weight += w;
-      ++count;
-    }
+    unsigned count = determineWeights(info, items, scent, wMin, wMax, weight);
 
     // In case we didn't find any target, fallback to
     // random target.
@@ -357,6 +382,10 @@ namespace cellify {
       return false;
     }
 
+    utils::Point2f temp;
+
+    weight = (count == 1u ? 1.0f : 0.0f);
+    float range = (count == 1u ? 1.0f : wMax - wMin);
     for (unsigned id = 0u ; id < items.size() ; ++id) {
       const Element* el = reinterpret_cast<const Element*>(info.locator.get(items[id]));
       if (el->type() != Tile::Pheromon) {
@@ -376,14 +405,14 @@ namespace cellify {
       // A crude estimate is to convert to seconds, and then to
       // use that value as a weight: the longer a pheromon has
       // been around, the more important it will be considered.
-      float w = d / 1000.0f - min;
+      float w = (d / 1000.0f - wMin) / range;
 
       temp.x() += w * el->pos().x();
       temp.y() += w * el->pos().y();
 
-      weight += w;
-
-      ++count;
+      if (count > 1u) {
+        weight += w;
+      }
     }
 
     out.x() = static_cast<int>(std::round(temp.x() / weight));
