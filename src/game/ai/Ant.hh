@@ -167,6 +167,12 @@ namespace cellify {
        *          one.
        */
       OptTarget m_target;
+
+      /**
+       * @brief - The last position of the ant. Allows to compute
+       *          some sort of 'forward' direction.
+       */
+      utils::Point2i m_lastPos;
   };
 
   using AntShPtr = std::shared_ptr<Ant>;

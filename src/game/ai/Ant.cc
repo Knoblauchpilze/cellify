@@ -88,7 +88,9 @@ namespace cellify {
 
     m_behavior(Behavior::Wander),
     m_lastPheromon(),
-    m_target(nullptr)
+
+    m_target(nullptr),
+    m_lastPos()
   {}
 
   Behavior
@@ -101,6 +103,7 @@ namespace cellify {
     generatePath(info);
 
     m_lastPheromon = info.moment;
+    m_lastPos = info.path.begin();
 
     // The ant is looking for food at first.
     m_behavior = Behavior::Wander;
@@ -133,6 +136,11 @@ namespace cellify {
     // Emit a pheromon if possible.
     if (m_lastPheromon + millisecondsToDuration(PHEROMON_SPAWN_INTERVAL) < info.moment) {
       spawnPheromon(info);
+    }
+
+    // Change the current position if it changed.
+    if (m_lastPos != info.pos) {
+      m_lastPos = info.pos;
     }
   }
 
