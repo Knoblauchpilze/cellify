@@ -246,6 +246,17 @@ namespace pge {
 
   void
   App::drawWorld(const RenderDesc& res) noexcept {
+    // We want to draw first the pheromons and then the
+    // solid elements, and finally the ants.
+    drawWorldLayer(res, std::unordered_set<cellify::Tile>{cellify::Tile::Pheromon});
+    drawWorldLayer(res, std::unordered_set<cellify::Tile>{cellify::Tile::Food, cellify::Tile::Colony});
+    drawWorldLayer(res, std::unordered_set<cellify::Tile>{cellify::Tile::Ant});
+  }
+
+  void
+  App::drawWorldLayer(const RenderDesc& res,
+                      const std::unordered_set<cellify::Tile>& layer) noexcept
+  {
     SpriteDesc sd = {};
     sd.loc = pge::RelativePosition::Center;
     sd.radius = 1.0f;
@@ -254,7 +265,9 @@ namespace pge {
 
     const Viewport& tvp = res.cf.cellsViewport();
 
-    // Traverse the list of elements of the world.
+    // Traverse the list of elements of the world. We
+    // want to draw first the pheromons and then the
+    // solid elements, and finally the ants.
     for (unsigned id = 0u ; id < g.size() ; ++id) {
       const cellify::Element& e = g.at(id);
 
@@ -263,10 +276,16 @@ namespace pge {
         continue;
       }
 
+      // Ignore items that are not in the current layer.
+      if (layer.count(e.type()) == 0) {
+        continue;
+      }
+
       sd.x = 1.0f * e.pos().x();
       sd.y = 1.0f * e.pos().y();
 
       sd.sprite.tint = colorFromTile(e.type(), e.data());
+
       drawRect(sd, res.cf);
     }
   }

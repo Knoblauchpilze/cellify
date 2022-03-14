@@ -1,6 +1,7 @@
 #ifndef    APP_HH
 # define   APP_HH
 
+# include <unordered_set>
 # include "PGEApp.hh"
 # include "TexturePack.hh"
 # include "Menu.hh"
@@ -112,6 +113,10 @@ namespace pge {
 
       void
       drawWorld(const RenderDesc& res) noexcept;
+
+      void
+      drawWorldLayer(const RenderDesc& res,
+                     const std::unordered_set<cellify::Tile>& layer) noexcept;
 
       void
       drawOverlays(const RenderDesc& res) noexcept;
