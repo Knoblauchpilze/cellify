@@ -12,6 +12,14 @@ namespace cellify {
     Food
   };
 
+  /**
+   * @brief - Generate a human readable string for a scent.
+   * @param s - the scent.
+   * @return - a string representing this scent.
+   */
+  std::string
+  scentToString(const Scent& s) noexcept;
+
   class Pheromon: public AI {
     public:
 

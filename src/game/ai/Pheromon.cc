@@ -3,6 +3,18 @@
 
 namespace cellify {
 
+  std::string
+  scentToString(const Scent& s) noexcept {
+    switch (s) {
+      case Scent::Home:
+        return "home";
+      case Scent::Food:
+        return "food";
+      default:
+        return "unknown";
+    }
+  }
+
   Pheromon::Pheromon(const Scent& scent,
                      const TimeStamp& created,
                      float amount,
