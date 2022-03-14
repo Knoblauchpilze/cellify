@@ -112,6 +112,7 @@ namespace cellify {
     Scent s;
     switch (m_behavior) {
       case Behavior::Return:
+      case Behavior::Deposit:
         s = Scent::Food;
         break;
       default:
@@ -310,7 +311,17 @@ namespace cellify {
     unsigned count = 0u;
     float weight = 0.0f;
 
+    utils::Point2f temp;
     out = utils::Point2i(0, 0);
+
+    // While aggregating the pheromons, we want to give a
+    // higher priority to the pheromons that are older. It
+    // indicates that they managed to 'survive' for longer
+    // and so might be more relevant for the ant.
+    // We first have to accumulate the total weight that
+    // is desired, so that we can somehow normalize all
+    // of the individual weights.
+    float min = std::numeric_limits<float>::max();
 
     for (unsigned id = 0u ; id < items.size() ; ++id) {
       const Element* el = reinterpret_cast<const Element*>(info.locator.get(items[id]));
@@ -324,13 +335,19 @@ namespace cellify {
         continue;
       }
 
-      out.x() += el->pos().x();
-      out.y() += el->pos().y();
-
       // The weight is based on the creation time.
-      /// TODO: Handle weight of pheromon based on creation time.
-      weight += 1.0f;
+      TimeStamp ts = *reinterpret_cast<const TimeStamp*>(el->data() + sizeof(Scent));
+      Duration d = info.moment - ts;
 
+      // A crude estimate is to convert to seconds, and then to
+      // use that value as a weight: the longer a pheromon has
+      // been around, the more important it will be considered.
+      float w = d / 1000.0f;
+      if (w < min) {
+        min = w;
+      }
+
+      weight += w;
       ++count;
     }
 
@@ -340,8 +357,37 @@ namespace cellify {
       return false;
     }
 
-    out.x() = static_cast<int>(std::round(1.0f * out.x() / count));
-    out.y() = static_cast<int>(std::round(1.0f * out.y() / count));
+    for (unsigned id = 0u ; id < items.size() ; ++id) {
+      const Element* el = reinterpret_cast<const Element*>(info.locator.get(items[id]));
+      if (el->type() != Tile::Pheromon) {
+        continue;
+      }
+
+      // Only consider food which leads to food.
+      Scent sc = *reinterpret_cast<const Scent*>(el->data());
+      if (sc != scent) {
+        continue;
+      }
+
+      // The weight is based on the creation time.
+      TimeStamp ts = *reinterpret_cast<const TimeStamp*>(el->data() + sizeof(Scent));
+      Duration d = info.moment - ts;
+
+      // A crude estimate is to convert to seconds, and then to
+      // use that value as a weight: the longer a pheromon has
+      // been around, the more important it will be considered.
+      float w = d / 1000.0f - min;
+
+      temp.x() += w * el->pos().x();
+      temp.y() += w * el->pos().y();
+
+      weight += w;
+
+      ++count;
+    }
+
+    out.x() = static_cast<int>(std::round(temp.x() / weight));
+    out.y() = static_cast<int>(std::round(temp.y() / weight));
 
     return true;
   }
