@@ -2,6 +2,8 @@
 # include "Ant.hh"
 # include "AStar.hh"
 
+# include <iostream>
+
 /// @brief - The vision frustim of an ant: defines
 /// how far it can perceive blocks. It is also used
 /// to define how far a random target can be picked
@@ -14,20 +16,12 @@
 
 namespace {
 
-  unsigned
-  determineWeights(const cellify::Info& info,
-                   const std::vector<int>& items,
-                   const cellify::Scent& scent,
-                   float& wMin,
-                   float& wMax,
-                   float& weight)
+  std::vector<int>
+  filterPheromons(const cellify::Info& info,
+                  const std::vector<int>& items,
+                  const cellify::Scent& scent) noexcept
   {
-    unsigned count = 0u;
-    weight = 0.0f;
-
-    // Aggregate the maximum and minimum weights.
-    wMin = std::numeric_limits<float>::max();
-    wMax = std::numeric_limits<float>::lowest();
+    std::vector<int> filtered;
 
     for (unsigned id = 0u ; id < items.size() ; ++id) {
       const cellify::Element* el = reinterpret_cast<const cellify::Element*>(info.locator.get(items[id]));
@@ -35,32 +29,16 @@ namespace {
         continue;
       }
 
-      // Only consider food which leads to food.
+      // Only consider pheromon with the specified scent.
       cellify::Scent sc = *reinterpret_cast<const cellify::Scent*>(el->data());
       if (sc != scent) {
         continue;
       }
 
-      // The weight is based on the creation time.
-      cellify::TimeStamp ts = *reinterpret_cast<const cellify::TimeStamp*>(el->data() + sizeof(cellify::Scent));
-      cellify::Duration d = info.moment - ts;
-
-      // A crude estimate is to convert to seconds, and then to
-      // use that value as a weight: the longer a pheromon has
-      // been around, the more important it will be considered.
-      float w = d / 1000.0f;
-      if (w < wMin) {
-        wMin = w;
-      }
-      if (w > wMax) {
-        wMax = w;
-      }
-
-      weight += w;
-      ++count;
+      filtered.push_back(items[id]);
     }
 
-    return count;
+    return filtered;
   }
 
 }
@@ -90,7 +68,8 @@ namespace cellify {
     m_lastPheromon(),
 
     m_target(nullptr),
-    m_lastPos()
+    m_lastPos(),
+    m_dir()
   {}
 
   Behavior
@@ -140,6 +119,7 @@ namespace cellify {
 
     // Change the current position if it changed.
     if (m_lastPos != info.pos) {
+      m_dir = info.pos - m_lastPos;
       m_lastPos = info.pos;
     }
   }
@@ -224,7 +204,12 @@ namespace cellify {
     // which the average of the position of pheromons
     // for food.
     utils::Point2i avg;
-    if (!aggregatePheromomns(info, items, Scent::Food, avg)) {
+    bool reverse = false;
+    if (!aggregatePheromomns(info, items, Scent::Food, avg, reverse)) {
+      if (reverse) {
+        m_dir = -m_dir;
+      }
+
       // No pheromons of this type were found, use a
       // random target.
       if (info.path.empty()) {
@@ -289,7 +274,12 @@ namespace cellify {
     // which the average of the position of pheromons
     // for food.
     utils::Point2i avg;
-    if (!aggregatePheromomns(info, items, Scent::Home, avg)) {
+    bool reverse = false;
+    if (!aggregatePheromomns(info, items, Scent::Home, avg, reverse)) {
+      if (reverse) {
+        m_dir = -m_dir;
+      }
+
       // No pheromons of this type were found, use a
       // random target.
       if (info.path.empty()) {
@@ -367,64 +357,56 @@ namespace cellify {
   Ant::aggregatePheromomns(Info& info,
                            const std::vector<int>& items,
                            const Scent& scent,
-                           utils::Point2i& out) const noexcept
+                           utils::Point2i& out,
+                           bool& reverse) const noexcept
   {
     out = utils::Point2i(0, 0);
 
-    // While aggregating the pheromons, we want to give a
-    // higher priority to the pheromons that are older. It
-    // indicates that they managed to 'survive' for longer
-    // and so might be more relevant for the ant.
-    // We first have to accumulate the total weight that
-    // is desired, so that we can somehow normalize all
-    // of the individual weights.
-    float weight = 0.0f;
-    float wMin = std::numeric_limits<float>::max();
-    float wMax = std::numeric_limits<float>::lowest();
+    // Filter to keep only pheromons.
+    std::vector<int> ph = filterPheromons(info, items, scent);
 
-    unsigned count = determineWeights(info, items, scent, wMin, wMax, weight);
-
-    // In case we didn't find any target, fallback to
-    // random target.
-    if (count == 0u) {
+    // In case there are none, we couldn't find a target.
+    if (ph.empty()) {
       return false;
     }
 
+    // Aggregate the average position of the pheromons. We
+    // will only consider pheromons that are pointing in
+    // the general direction of the ant.
     utils::Point2f temp;
+    unsigned count = 0u;
 
-    weight = (count == 1u ? 1.0f : 0.0f);
-    float range = (count == 1u ? 1.0f : wMax - wMin);
-    for (unsigned id = 0u ; id < items.size() ; ++id) {
-      const Element* el = reinterpret_cast<const Element*>(info.locator.get(items[id]));
-      if (el->type() != Tile::Pheromon) {
+    for (unsigned id = 0u ; id < ph.size() ; ++id) {
+      const Element* el = reinterpret_cast<const Element*>(info.locator.get(ph[id]));
+
+      // Discard pheromons that are not in the general way
+      // the ant is moving. Also, discard pheromons exactly
+      // at our current location.
+      utils::Vector2i toPheromon = el->pos() - info.pos;
+      float dot = toPheromon * m_dir;
+      if (dot <= 0.0f) {
         continue;
       }
 
-      // Only consider food which leads to food.
-      Scent sc = *reinterpret_cast<const Scent*>(el->data());
-      if (sc != scent) {
+      if (el->pos() == info.pos) {
         continue;
       }
 
-      // The weight is based on the creation time.
-      TimeStamp ts = *reinterpret_cast<const TimeStamp*>(el->data() + sizeof(Scent));
-      Duration d = info.moment - ts;
+      temp.x() += el->pos().x();
+      temp.y() += el->pos().y();
 
-      // A crude estimate is to convert to seconds, and then to
-      // use that value as a weight: the longer a pheromon has
-      // been around, the more important it will be considered.
-      float w = (d / 1000.0f - wMin) / range;
-
-      temp.x() += w * el->pos().x();
-      temp.y() += w * el->pos().y();
-
-      if (count > 1u) {
-        weight += w;
-      }
+      ++count;
     }
 
-    out.x() = static_cast<int>(std::round(temp.x() / weight));
-    out.y() = static_cast<int>(std::round(temp.y() / weight));
+    // In case all pheromons were discarding, allow the ant
+    // to change direction.
+    if (count == 0u) {
+      reverse = true;
+      return false;
+    }
+
+    out.x() = static_cast<int>(1.0f * std::round(temp.x() / count));
+    out.y() = static_cast<int>(1.0f * std::round(temp.y() / count));
 
     return true;
   }

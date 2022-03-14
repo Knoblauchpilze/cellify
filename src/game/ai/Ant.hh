@@ -136,6 +136,8 @@ namespace cellify {
        * @param out - the output position aggregating from the
        *              available pheromons. Should be ignored if
        *              the return value is `false`.
+       * @param reverse - indicates whether the ant could benefit
+       *                  from reversing its direction.
        * @return - `true` if at least one pheromon could be
        *           found (and so the position is valid).
        */
@@ -143,7 +145,8 @@ namespace cellify {
       aggregatePheromomns(Info& info,
                           const std::vector<int>& items,
                           const Scent& scent,
-                          utils::Point2i& out) const noexcept;
+                          utils::Point2i& out,
+                          bool& reverse) const noexcept;
 
     private:
 
@@ -173,6 +176,11 @@ namespace cellify {
        *          some sort of 'forward' direction.
        */
       utils::Point2i m_lastPos;
+
+      /**
+       * @brief - The forward direction that the and is travelling.
+       */
+      utils::Vector2i m_dir;
   };
 
   using AntShPtr = std::shared_ptr<Ant>;
