@@ -58,6 +58,17 @@ namespace cellify {
       unsigned
       count(const Tile& tile) const noexcept;
 
+      /**
+       * @brief - Generate a new element with the specified type
+       *          at the input position.
+       * @param p - the position to create the element.
+       * @param tile - the tile to create.
+       * @return - `true` if the element could be spawned.
+       */
+      bool
+      spawn(const utils::Point2i& p,
+            const Tile& tile) noexcept;
+
     private:
 
       /**

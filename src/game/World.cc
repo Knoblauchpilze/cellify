@@ -110,4 +110,33 @@ namespace cellify {
     return count;
   }
 
+  bool
+  World::spawn(const utils::Point2i& p,
+               const Tile& tile) noexcept
+  {
+    ElementShPtr e;
+
+    switch (tile) {
+      case Tile::Food:
+      case Tile::Obstacle:
+        e = std::make_shared<Element>(tile, p);
+        break;
+      case Tile::Colony:
+      case Tile::Ant:
+      case Tile::Pheromon:
+      default:
+        // Do nothing, unsupported spawn request.
+        break;
+    }
+
+    if (e == nullptr) {
+      warn("Unsupported spawn request for " + tileToString(tile));
+      return false;
+    }
+
+    m_grid->spawn(e);
+
+    return true;
+  }
+
 }

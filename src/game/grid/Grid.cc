@@ -156,6 +156,8 @@ namespace cellify {
       }
     }
 
+    /// TODO: Merge food and obstacle.
+
     log(
       "Spawning agent with type " + tileToString(elem->type()) +
       " at " + elem->pos().toString(),

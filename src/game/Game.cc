@@ -121,11 +121,20 @@ namespace pge {
   }
 
   void
-  Game::performAction(float /*x*/, float /*y*/) {
+  Game::performAction(float x, float y) {
     // Only handle actions when the game is not disabled.
     if (m_state.disabled) {
       log("Ignoring action while menu is disabled");
       return;
+    }
+
+    // Convert to integer coordinates.
+    utils::Point2i p;
+    p.x() = static_cast<int>(std::floor(x + 0.5f));
+    p.y() = static_cast<int>(std::floor(y + 0.5f));
+
+    if (!m_world->spawn(p, m_itemToAdd)) {
+      warn("Failed to spawn " + cellify::tileToString(m_itemToAdd) + " at " + p.toString());
     }
   }
 
