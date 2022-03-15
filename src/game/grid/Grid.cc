@@ -3,6 +3,7 @@
 # include "Colony.hh"
 # include "Ant.hh"
 # include "Pheromon.hh"
+# include "Food.hh"
 
 /// @brief - The radius of the food circle around the
 /// central colony.
@@ -11,6 +12,9 @@
 /// @brief - The number of deposits to put on the food
 /// circle around the colony.
 # define FOOD_DEPOSITS_COUNT 4
+
+/// @brief - The amount of food in deposits.
+# define FOOD_STOCK 5.0f
 
 /// @brief - The dimensions of the initial walls.
 # define WALL_LENGTH 6
@@ -223,7 +227,7 @@ namespace cellify {
         std::make_shared<Element>(
           Tile::Food,
           utils::Point2i(x, y),
-          nullptr
+          std::make_shared<Food>(FOOD_STOCK)
         )
       );
     }
