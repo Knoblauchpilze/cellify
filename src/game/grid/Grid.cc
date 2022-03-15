@@ -156,7 +156,19 @@ namespace cellify {
       }
     }
 
-    /// TODO: Merge food and obstacle.
+    // In case the element is a solid object, we won't
+    // spawn a new one at the exact same position.
+    if (elem->type() == Tile::Food || elem->type() == Tile::Colony || elem->type() == Tile::Obstacle) {
+      Indices ids = at(elem->pos().x(), elem->pos().y());
+      if (!ids.empty()) {
+        log(
+          "Preventing insertion of " + tileToString(elem->type()) +
+          " at " + elem->pos().toString() + ", already containing an element"
+        );
+
+        return;
+      }
+    }
 
     log(
       "Spawning agent with type " + tileToString(elem->type()) +
