@@ -18,6 +18,9 @@
 /// carry in one go.
 # define ANT_CARGO_SPACE 5.0f
 
+/// @brief - The minium evaporation rate for pheromons.
+# define PHEROMON_EVAPORATION_RATE 0.15f
+
 namespace {
 
   std::vector<int>
@@ -150,10 +153,10 @@ namespace cellify {
 
     float a = fi->amount(body);
     if (a > 0.0f) {
-      log("Gathered " + std::to_string(a) + " food", utils::Level::Info);
+      log("Gathered " + std::to_string(a) + " food", utils::Level::Debug);
     }
     else {
-      log("Deposit " + std::to_string(-a) + " food", utils::Level::Info);
+      log("Deposit " + std::to_string(-a) + " food", utils::Level::Debug);
     }
 
     m_food += a;
@@ -214,7 +217,7 @@ namespace cellify {
     // Small randomness in the amount and evaporation rate
     // of each pheromon.
     float a = info.rng.rndFloat(1.0f, 1.1f);
-    float e = info.rng.rndFloat(0.1f, 0.12f);
+    float e = info.rng.rndFloat(PHEROMON_EVAPORATION_RATE, PHEROMON_EVAPORATION_RATE + 0.1f * PHEROMON_EVAPORATION_RATE);
 
     info.spawned.push_back(Animat{
       info.pos,
@@ -237,7 +240,7 @@ namespace cellify {
         return;
       }
 
-      log("Found food source at " + best.toString(), utils::Level::Info);
+      log("Found food source at " + best.toString(), utils::Level::Verbose);
 
       m_target = std::make_shared<utils::Point2i>(best.x(), best.y());
       generatePath(info);
@@ -332,12 +335,20 @@ namespace cellify {
       ++id;
     }
 
+    // Can happen that the deposit is empty if somebody else
+    // emptied it in the meantime. In this case we want to
+    // go back to wandering.
+    if (deposit == nullptr) {
+      m_behavior = Behavior::Wander;
+      return;
+    }
+
     // Create an influence to pick up some food.
     info.actions.push_back(std::make_shared<FoodInteraction>(
       deposit, ANT_CARGO_SPACE, body
     ));
 
-    log("Reached food at " + info.pos.toString() + ", going back home");
+    log("Reached food at " + info.pos.toString() + ", going back home", utils::Level::Verbose);
 
     // And change the behavior.
     m_behavior = Behavior::Return;
@@ -354,7 +365,7 @@ namespace cellify {
         return;
       }
 
-      log("Found colony at " + best.toString(), utils::Level::Info);
+      log("Found colony at " + best.toString(), utils::Level::Verbose);
 
       m_target = std::make_shared<utils::Point2i>(best.x(), best.y());
       generatePath(info);
@@ -452,7 +463,7 @@ namespace cellify {
       body, ANT_CARGO_SPACE, colony
     ));
 
-    log("Reached colony at " + info.pos.toString() + ", going back to wander");
+    log("Reached colony at " + info.pos.toString() + ", going back to wander", utils::Level::Verbose);
 
     // And change the behavior.
     m_behavior = Behavior::Wander;
@@ -592,7 +603,7 @@ namespace cellify {
       out.x() += sx;
       out.y() += sy;
 
-      log("Moved obstructed target " + old.toString() + " to " + out.toString());
+      log("Moved obstructed target " + old.toString() + " to " + out.toString(), utils::Level::Verbose);
     }
 
     return true;

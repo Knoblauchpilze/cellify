@@ -18,7 +18,7 @@ namespace cellify {
     AI("colony-" + uuid.toString()),
 
     m_budget(50.0f),
-    m_antCost(50.0f),
+    m_antCost(25.0f),
     m_lastSpawn(zero()),
     m_restTime(millisecondsToDuration(ANT_SPAWN_INTERNAL))
   {}
@@ -90,7 +90,8 @@ namespace cellify {
 
     log(
       "Registering spawn attempt at " + p.toString() +
-      " (budget: " + std::to_string(m_budget) + "/" + std::to_string(m_antCost) + ")"
+      " (budget: " + std::to_string(m_budget) + "/" + std::to_string(m_antCost) + ")",
+      utils::Level::Verbose
      );
 
     // Update spawn tracking variables.
