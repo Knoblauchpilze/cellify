@@ -12,7 +12,8 @@ namespace cellify {
     Colony,
     Ant,
     Food,
-    Pheromon
+    Pheromon,
+    Obstacle
   };
 
   /**

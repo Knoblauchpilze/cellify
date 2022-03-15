@@ -33,6 +33,8 @@ namespace {
         }
         return olc::Pixel(137, 209, 254);
       }
+      case cellify::Tile::Obstacle:
+        return olc::DARK_GREY;
       default:
         // Error case.
         return olc::RED;
@@ -249,7 +251,7 @@ namespace pge {
     // We want to draw first the pheromons and then the
     // solid elements, and finally the ants.
     drawWorldLayer(res, std::unordered_set<cellify::Tile>{cellify::Tile::Pheromon});
-    drawWorldLayer(res, std::unordered_set<cellify::Tile>{cellify::Tile::Food, cellify::Tile::Colony});
+    drawWorldLayer(res, std::unordered_set<cellify::Tile>{cellify::Tile::Food, cellify::Tile::Colony, cellify::Tile::Obstacle});
     drawWorldLayer(res, std::unordered_set<cellify::Tile>{cellify::Tile::Ant});
   }
 

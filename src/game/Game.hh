@@ -118,6 +118,14 @@ namespace pge {
       void
       speedUpSimulation() noexcept;
 
+      /**
+       * @brief - Specify a new item to be added when the user
+       *          clicks somewhere on the grid.
+       * @param tile - the tile to add to the world.
+       */
+      void
+      setItemToAdd(const cellify::Tile& tile) noexcept;
+
     private:
 
       /**
@@ -174,8 +182,11 @@ namespace pge {
         // The speed of the current simulation.
         MenuShPtr speed;
 
-        // The probe menu.
-        MenuShPtr probe;
+        // The menu to add food.
+        MenuShPtr food;
+
+        // The menu to add an obstacle in the simulation.
+        MenuShPtr obstacle;
       };
 
       /**
@@ -193,6 +204,12 @@ namespace pge {
        *          current state of the simulation.
        */
       Menus m_menus;
+
+      /**
+       * @brief - The current element selected to place in the
+       *          world in case of a click.
+       */
+      cellify::Tile m_itemToAdd;
   };
 
   using GameShPtr = std::shared_ptr<Game>;

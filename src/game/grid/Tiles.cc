@@ -14,6 +14,8 @@ namespace cellify {
         return "food";
       case Tile::Pheromon:
         return "pheromon";
+      case Tile::Obstacle:
+        return "obstacle";
       default:
         return "unknown";
     }

@@ -6,8 +6,8 @@
 /// @brief - The height of the status menu in pixels.
 # define STATUS_MENU_HEIGHT 50
 
-/// @brief - The width of the probe menu in pixels.
-# define PROBE_MENU_WIDTH 150
+/// @brief - The height of the building menu in pixels.
+# define BUILDING_MENU_HEIGHT 50
 
 /// @brief - The maximum speed for the simulation.
 # define MAX_SIMULATION_SPEED 8.0f
@@ -19,7 +19,8 @@ namespace {
                const olc::vi2d& size,
                const std::string& text,
                const std::string& name,
-               bool clickable = false)
+               bool clickable = false,
+               bool selectable = false)
   {
     pge::menu::MenuContentDesc fd = pge::menu::newMenuContent(text, "", size);
     fd.color = olc::WHITE;
@@ -34,7 +35,7 @@ namespace {
       fd,
       pge::menu::Layout::Horizontal,
       clickable,
-      false
+      selectable
     );
   }
 
@@ -56,7 +57,10 @@ namespace pge {
 
     m_world(world),
 
-    m_menus()
+    m_menus(),
+
+    // By default, add a food item.
+    m_itemToAdd(cellify::Tile::Obstacle)
   {
     setService("game");
   }
@@ -68,7 +72,7 @@ namespace pge {
                       float height)
   {
     // Generate the status menu.
-    pge::MenuShPtr status = generateMenu(olc::vi2d(), olc::vi2d(width, STATUS_MENU_HEIGHT), "", "root");
+    MenuShPtr status = generateMenu(olc::vi2d(), olc::vi2d(width, STATUS_MENU_HEIGHT), "", "status");
 
     olc::vi2d pos;
     olc::vi2d dims(50, STATUS_MENU_HEIGHT);
@@ -84,17 +88,34 @@ namespace pge {
       }
     );
 
-    // Generate the probe menu.
-    pos = olc::vi2d(width - PROBE_MENU_WIDTH, STATUS_MENU_HEIGHT);
-    dims = olc::vi2d(PROBE_MENU_WIDTH, height - STATUS_MENU_HEIGHT);
-    m_menus.probe = generateMenu(pos, dims, "PROBE", "prove", true);
+    // Generate the building menu.
+    MenuShPtr building = generateMenu(olc::vi2d(0, height - BUILDING_MENU_HEIGHT), olc::vi2d(width, BUILDING_MENU_HEIGHT), "", "building");
+
+    dims = olc::vi2d(50, BUILDING_MENU_HEIGHT);
+    MenuShPtr label = generateMenu(pos, dims, "Add element:", "label");
+    m_menus.food = generateMenu(pos, dims, "Food", "food", true, true);
+    m_menus.obstacle = generateMenu(pos, dims, "Obstacle", "obstacle", true, true);
+
+    // Register menus in the parent.
+    building->addMenu(label);
+    building->addMenu(m_menus.food);
+    building->addMenu(m_menus.obstacle);
+    m_menus.food->setSimpleAction(
+      [this](Game& g) {
+        g.setItemToAdd(cellify::Tile::Food);
+      }
+    );
+    m_menus.obstacle->setSimpleAction(
+      [this](Game& g) {
+        g.setItemToAdd(cellify::Tile::Obstacle);
+      }
+    );
 
     // Package menus for output.
     std::vector<MenuShPtr> menus;
 
     menus.push_back(status);
-
-    menus.push_back(m_menus.probe);
+    menus.push_back(building);
 
     return menus;
   }
@@ -167,6 +188,13 @@ namespace pge {
       " to " + std::to_string(m_state.speed),
       utils::Level::Info
     );
+  }
+
+  void
+  Game::setItemToAdd(const cellify::Tile& tile) noexcept {
+    log("Activated " + cellify::tileToString(tile) + " item to be placed in the world", utils::Level::Info);
+
+    m_itemToAdd = tile;
   }
 
   void

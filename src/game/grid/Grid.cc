@@ -12,6 +12,9 @@
 /// circle around the colony.
 # define FOOD_DEPOSITS_COUNT 4
 
+/// @brief - The dimensions of the initial walls.
+# define WALL_LENGTH 6
+
 namespace cellify {
 
   Grid::Grid(utils::RNG& rng):
@@ -78,7 +81,7 @@ namespace cellify {
 
       bool coordsMatch = (c->pos().x() == x && c->pos().y() == y);
       if (coordsMatch) {
-        bool isSolid = c->type() == Tile::Colony || c->type() == Tile::Food;
+        bool isSolid = c->type() == Tile::Colony || c->type() == Tile::Food || c->type() == Tile::Obstacle;
 
         if (includeNonSolid || isSolid) {
           out.push_back(static_cast<int>(id));
@@ -210,6 +213,34 @@ namespace cellify {
         )
       );
     }
+
+    // Put some obstacles in the world: this will describe
+    // some sort of square around the colony but not closed.
+    auto wall = [this](int xMin, int xMax, int yMin, int yMax) {
+      for (int y = yMin ; y < yMax ; ++y) {
+        for (int x = xMin ; x < xMax ; ++x) {
+          m_cells.push_back(
+            std::make_shared<Element>(
+              Tile::Obstacle,
+              utils::Point2i(x, y),
+              nullptr
+            )
+          );
+        }
+      }
+    };
+
+    // Left wall.
+    wall(-5, -4, 0 - WALL_LENGTH / 2, 0 + WALL_LENGTH / 2 + 1);
+
+    // Right wall.
+    wall(5, 6, 0 - WALL_LENGTH / 2, 0 + WALL_LENGTH / 2 + 1);
+
+    // Top wall.
+    wall(0 - WALL_LENGTH / 2, 0 + WALL_LENGTH / 2 + 1, 7, 8);
+
+    // Bottom wall.
+    wall(0 - WALL_LENGTH / 2, 0 + WALL_LENGTH / 2 + 1, -7, -6);
   }
 
   bool
