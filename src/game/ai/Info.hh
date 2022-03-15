@@ -34,6 +34,15 @@ namespace cellify {
   /// @brief - A list of spawned elements.
   using Animats = std::vector<Animat>;
 
+  /// @brief - Forward declaration of the influence class.
+  class Influence;
+
+  /// @brief - Forward declaratrion of the influence pointer.
+  using InfluenceShPtr = std::shared_ptr<Influence>;
+
+  /// @brief - A list of influences.
+  using Influences = std::vector<InfluenceShPtr>;
+
   /// @brief - The information needed by the AI to perform
   /// its processing.
   struct Info {
@@ -64,6 +73,9 @@ namespace cellify {
     // A list of new AIs that might be created by this
     // agent.
     Animats spawned;
+
+    // A list of the influences produced by this agent.
+    Influences actions;
   };
 
 }

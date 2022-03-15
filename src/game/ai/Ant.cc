@@ -1,8 +1,8 @@
 
 # include "Ant.hh"
+# include <cxxabi.h>
 # include "AStar.hh"
-
-# include <iostream>
+# include "FoodInteraction.hh"
 
 /// @brief - The vision frustim of an ant: defines
 /// how far it can perceive blocks. It is also used
@@ -13,6 +13,10 @@
 /// @brief - The interval between emitting a new
 /// pheromone. Expressed in milliseconds.
 # define PHEROMON_SPAWN_INTERVAL 500
+
+/// @brief - The amount of food that the ant can
+/// carry in one go.
+# define ANT_CARGO_SPACE 5.0f
 
 namespace {
 
@@ -69,7 +73,9 @@ namespace cellify {
 
     m_target(nullptr),
     m_lastPos(),
-    m_dir()
+    m_dir(),
+
+    m_food(0.0f)
   {}
 
   Behavior
@@ -122,6 +128,36 @@ namespace cellify {
       m_dir = info.pos - m_lastPos;
       m_lastPos = info.pos;
     }
+  }
+
+  bool
+  Ant::influence(const Influence* inf,
+                 const Element* body) noexcept
+  {
+    // In case the influence is not a food interaction,
+    // we can't process it.
+    const FoodInteraction* fi = dynamic_cast<const FoodInteraction*>(inf);
+    if (fi == nullptr) {
+      int status;
+      std::string it = abi::__cxa_demangle(typeid(*inf).name(), 0, 0, &status);
+
+      error(
+        "Failed to process influence",
+        "Unsupported influence with kind " + it
+      );
+    }
+
+    float a = fi->amount(body);
+    if (a > 0.0f) {
+      log("Gathered " + std::to_string(a) + " food", utils::Level::Info);
+    }
+    else {
+      log("Deposit " + std::to_string(-a) + " food", utils::Level::Info);
+    }
+
+    m_food += a;
+
+    return true;
   }
 
   bool
@@ -237,14 +273,49 @@ namespace cellify {
   }
 
   void
-  Ant::food(Info& info, const std::vector<int>& /*items*/) {
+  Ant::food(Info& info, const std::vector<int>& items) {
     // We don't have to do anything as long as we didn't
     // reach the food. Then we have to go back home.
     if (!info.path.empty()) {
       return;
     }
 
+    // Fetch the food deposit that we reached, and our
+    // own body. We consider that if an element has the
+    // same kind and position as the target, it is the
+    // target.
+    Element* deposit = nullptr;
+    Element* body = nullptr;
+
+    unsigned id = 0u;
+    unsigned found = 0u;
+    while (id < items.size() && found < 2u) {
+      const Element* el = reinterpret_cast<const Element*>(info.locator.get(items[id]));
+
+      // Handle the deposit.
+      if (el->type() == Tile::Food && el->pos() == *m_target) {
+        deposit = const_cast<Element*>(el);
+        ++found;
+      }
+
+      // Handle the body: we add a test on the identifier
+      // as we have it.
+      if (el->type() == Tile::Ant && el->pos() == *m_target && el->uuid() == uuid()) {
+        body = const_cast<Element*>(el);
+        ++found;
+      }
+
+      ++id;
+    }
+
+    // Create an influence to pick up some food.
+    info.actions.push_back(std::make_shared<FoodInteraction>(
+      deposit, ANT_CARGO_SPACE, body
+    ));
+
     log("Reached food at " + info.pos.toString() + ", going back home");
+
+    // And change the behavior.
     m_behavior = Behavior::Return;
   }
 
@@ -307,14 +378,46 @@ namespace cellify {
   }
 
   void
-  Ant::deposit(Info& info, const std::vector<int>& /*items*/) {
+  Ant::deposit(Info& info, const std::vector<int>& items) {
     // We don't have to do anything as long as we didn't
     // reach the colony. Then we have to go back home.
     if (!info.path.empty()) {
       return;
     }
 
+    // Fetch the food deposit that we got.
+    Element* colony = nullptr;
+    Element* body = nullptr;
+
+    unsigned id = 0u;
+    unsigned found = 0u;
+    while (id < items.size() && found < 2u) {
+      const Element* el = reinterpret_cast<const Element*>(info.locator.get(items[id]));
+
+      // Handle the colony.
+      if (el->type() == Tile::Colony && el->pos() == *m_target) {
+        colony = const_cast<Element*>(el);
+        ++found;
+      }
+
+      // Handle the body: we add a test on the identifier
+      // as we have it.
+      if (el->type() == Tile::Ant && el->pos() == *m_target && el->uuid() == uuid()) {
+        body = const_cast<Element*>(el);
+        ++found;
+      }
+
+      ++id;
+    }
+
+    // Create an influence to deposit some food.
+    info.actions.push_back(std::make_shared<FoodInteraction>(
+      body, ANT_CARGO_SPACE, colony
+    ));
+
     log("Reached colony at " + info.pos.toString() + ", going back to wander");
+
+    // And change the behavior.
     m_behavior = Behavior::Wander;
   }
 

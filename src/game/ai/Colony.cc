@@ -1,6 +1,8 @@
 
 # include "Colony.hh"
+# include <cxxabi.h>
 # include "Ant.hh"
+# include "FoodInteraction.hh"
 
 /// @brief - The duration in milliseconds between two
 /// consecutive spawn of an agent.
@@ -34,6 +36,31 @@ namespace cellify {
     if (m_budget >= m_antCost && info.moment > m_lastSpawn + m_restTime) {
       spawn(info);
     }
+  }
+
+  bool
+  Colony::influence(const Influence* inf,
+                    const Element* body) noexcept
+  {
+    // In case the influence is not a food interaction,
+    // we can't process it.
+    const FoodInteraction* fi = dynamic_cast<const FoodInteraction*>(inf);
+    if (fi == nullptr) {
+      int status;
+      std::string it = abi::__cxa_demangle(typeid(*inf).name(), 0, 0, &status);
+
+      error(
+        "Failed to process influence",
+        "Unsupported influence with kind " + it
+      );
+    }
+
+    float a = fi->amount(body);
+    log("Adding " + std::to_string(a) + " to budget of colony (current: " + std::to_string(m_budget) + ")", utils::Level::Info);
+
+    m_budget += a;
+
+    return true;
   }
 
   void

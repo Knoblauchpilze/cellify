@@ -1,5 +1,6 @@
 
 # include "World.hh"
+# include "Influence.hh"
 
 namespace cellify {
 
@@ -42,7 +43,9 @@ namespace cellify {
 
       *m_grid,      // grid
 
-      Elements()    // elements
+      Elements(),   // elements
+
+      Influences()  // actions
     };
 
     // Simulate elements.
@@ -53,6 +56,10 @@ namespace cellify {
     // Process influences.
     for (unsigned id = 0u ; id < si.spawned.size() ; ++id) {
       m_grid->spawn(si.spawned[id]);
+    }
+
+    for (unsigned id = 0u ; id < si.actions.size() ; ++id) {
+      si.actions[id]->apply();
     }
 
     // Perform the update of the grid (this step

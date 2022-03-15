@@ -64,6 +64,17 @@ namespace cellify {
       step(Info& info) override;
 
       /**
+       * @brief - Implementation of the interface method to apply
+       *          an influence to this pheromon.
+       * @param influence - the influence to process.
+       * @param body - the body of the agent.
+       * @return - `true` if the influence could be processed.
+       */
+      bool
+      influence(const Influence* inf,
+                const Element* body) noexcept override;
+
+      /**
        * @brief - Implementation of the interface method allowing
        *          to merge the content of two pheromons. In this
        *          case it means adding the amounts.

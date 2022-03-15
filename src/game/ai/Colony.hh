@@ -30,6 +30,17 @@ namespace cellify {
       void
       step(Info& info) override;
 
+      /**
+       * @brief - Implementation of the interface method to apply
+       *          an influence to this colony.
+       * @param influence - the influence to process.
+       * @param body - the body of the agent.
+       * @return - `true` if the influence could be processed.
+       */
+      bool
+      influence(const Influence* inf,
+                const Element* body) noexcept override;
+
     private:
 
       /**

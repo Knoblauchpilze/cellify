@@ -30,6 +30,13 @@ namespace cellify {
               const utils::Uuid& uuid = utils::Uuid());
 
       /**
+       * @brief - The identifier of this element.
+       * @return - the identifier of the element.
+       */
+      const utils::Uuid&
+      uuid() const noexcept;
+
+      /**
        * @brief - Return the type of the element.
        * @return - the type of the element.
        */
@@ -100,6 +107,15 @@ namespace cellify {
        */
       virtual void
       step(StepInfo& info);
+
+      /**
+       * @brief - Handles the application of an influence on the
+       *          element.
+       * @param influence - the influence to process.
+       * @return - `true` if the influence could be processed.
+       */
+      virtual bool
+      influence(const Influence* inf) noexcept;
 
       /**
        * @brief - Interface method allowing to pause this world

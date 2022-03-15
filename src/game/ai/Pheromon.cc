@@ -55,6 +55,14 @@ namespace cellify {
     /// TODO: Include some spreading of the pheromons ?
   }
 
+  bool
+  Pheromon::influence(const Influence* /*inf*/,
+                      const Element* /*body*/) noexcept
+  {
+    // Assume influence was successful.
+    return true;
+  }
+
   void
   Pheromon::merge(const AI& rhs) {
     // Consistency check: the cast will prevent merging

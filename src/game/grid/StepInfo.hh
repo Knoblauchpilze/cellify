@@ -17,6 +17,15 @@ namespace cellify {
   /// @brief - A list of elements.
   using Elements = std::vector<ElementShPtr>;
 
+  /// @brief - Forward declaration of the influence class.
+  class Influence;
+
+  /// @brief - Forward declaratrion of the influence pointer.
+  using InfluenceShPtr = std::shared_ptr<Influence>;
+
+  /// @brief - A list of influences.
+  using Influences = std::vector<InfluenceShPtr>;
+
   /// @brief - Forward declaration of a grid.
   class Grid;
 
@@ -42,6 +51,10 @@ namespace cellify {
     // The list of elements that will be spawned after the
     // end of the step.
     Elements spawned;
+
+    // The list of influences that will be processed at the
+    // end of the step.
+    Influences actions;
   };
 
 }

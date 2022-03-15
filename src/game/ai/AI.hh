@@ -3,6 +3,7 @@
 
 # include <memory>
 # include <core_utils/CoreObject.hh>
+# include <core_utils/Uuid.hh>
 # include <maths_utils/Point2.hh>
 # include <core_utils/RNG.hh>
 # include <core_utils/TimeUtils.hh>
@@ -10,8 +11,21 @@
 
 namespace cellify {
 
+  /// @brief - Forward declaration of an influence.
+  class Influence;
+
+  /// @brief - Forward declaration of an element.
+  class Element;
+
   class AI: public utils::CoreObject {
     public:
+
+      /**
+       * @brief - The identifier of this AI.
+       * @return - the identifier of the AI.
+       */
+      const utils::Uuid&
+      uuid() const noexcept;
 
       /**
        * @brief - Interface method caled before the first
@@ -45,12 +59,35 @@ namespace cellify {
       virtual void
       merge(const AI& rhs);
 
+      /**
+       * @brief - Handles the application of an influence on the
+       *          AI's properties.
+       * @param influence - the influence to process.
+       * @param body - the body of the agent.
+       * @return - `true` if the influence could be processed.
+       */
+      virtual bool
+      influence(const Influence* inf,
+                const Element* body) noexcept = 0;
+
     protected:
 
       /**
        * @brief - Build a new AI with the specified name.
+       * @param name - the name of the AI.
+       * @param uuid - the identifier of the AI. Will be
+       *               generated automatically in case it
+       *               is invalid.
        */
-      AI(const std::string& name) noexcept;
+      AI(const std::string& name,
+         const utils::Uuid& uuid = utils::Uuid()) noexcept;
+
+    private:
+
+      /**
+       * @brief - The identifier of the AI.
+       */
+      utils::Uuid m_uuid;
   };
 
   using AIShPtr = std::shared_ptr<AI>;

@@ -105,6 +105,11 @@ namespace cellify {
     }
   }
 
+  const utils::Uuid&
+  Element::uuid() const noexcept {
+    return m_uuid;
+  }
+
   const Tile&
   Element::type() const noexcept {
     return m_tile;
@@ -157,7 +162,8 @@ namespace cellify {
       m_path,
       info.grid,
       m_deleted,
-      Animats()
+      Animats(),
+      Influences()
     };
     m_brain->init(i);
 
@@ -199,7 +205,8 @@ namespace cellify {
       m_path,
       info.grid,
       m_deleted,
-      Animats()
+      Animats(),
+      Influences()
     };
     m_brain->step(i);
 
@@ -217,7 +224,7 @@ namespace cellify {
     // Persist the information.
     m_deleted = i.selfDestruct;
 
-    // And copy the spawned elements.
+    // Copy the spawned elements.
     for (unsigned id = 0u ; id < i.spawned.size() ; ++id) {
       const Animat& a = i.spawned[id];
 
@@ -225,10 +232,33 @@ namespace cellify {
       Tile t = tileFromBrain(a.brain);
       std::vector<char> d = dataFromBrain(a.brain);
 
-      ElementShPtr e = std::make_shared<Element>(t, a.pos, a.brain, d);
+      utils::Uuid uuid = (a.brain != nullptr ? a.brain->uuid() : utils::Uuid::create());
+
+      ElementShPtr e = std::make_shared<Element>(t, a.pos, a.brain, d, uuid);
 
       info.spawned.push_back(e);
     }
+
+    // And copy the influences.
+    info.actions.insert(info.actions.end(), i.actions.cbegin(), i.actions.cend());
+  }
+
+  bool
+  Element::influence(const Influence* inf) noexcept {
+    // Apply the influence to the brain: if no brain
+    // is available, assume the influence succeeded.
+    if (m_brain == nullptr) {
+      return true;
+    }
+
+    if (inf == nullptr) {
+      error(
+        "Failed to perform influence of element",
+        "Invalid null influence"
+      );
+    }
+
+    return m_brain->influence(inf, this);
   }
 
   void
