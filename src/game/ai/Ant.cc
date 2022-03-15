@@ -72,6 +72,7 @@ namespace cellify {
     m_lastPheromon(),
 
     m_target(nullptr),
+    m_randomTarget(false),
     m_lastPos(),
     m_dir(),
 
@@ -160,14 +161,25 @@ namespace cellify {
     return true;
   }
 
+  void
+  Ant::log(const std::string& message,
+           const utils::Level& level) const noexcept
+  {
+    // Helps with debugging by prepending the behavior
+    // to any log.
+    AI::log("[" + behaviorToString(m_behavior) + "] " + message, level);
+  }
+
   bool
   Ant::generatePath(Info& info) {
     // Pick a random target and find a path to it if needed.
+    m_randomTarget = false;
     if (m_target == nullptr) {
       int x = info.rng.rndInt(info.pos.x() - ANT_VISION_RADIUS, info.pos.x() + ANT_VISION_RADIUS);
       int y = info.rng.rndInt(info.pos.y() - ANT_VISION_RADIUS, info.pos.y() + ANT_VISION_RADIUS);
 
       m_target = std::make_shared<utils::Point2i>(x, y);
+      m_randomTarget = true;
     }
 
     AStar astar(info.pos, *m_target, info.locator);
@@ -177,7 +189,7 @@ namespace cellify {
     }
 
     if (ok) {
-      log("Moving from " + info.path.begin().toString() + " to " + info.path.end().toString());
+      log("Moving from " + info.path.begin().toString() + " to " + info.path.end().toString(), utils::Level::Verbose);
     }
 
     return ok;
@@ -225,7 +237,7 @@ namespace cellify {
         return;
       }
 
-      log("Found food source at " + best.toString());
+      log("Found food source at " + best.toString(), utils::Level::Info);
 
       m_target = std::make_shared<utils::Point2i>(best.x(), best.y());
       generatePath(info);
@@ -236,25 +248,37 @@ namespace cellify {
       return;
     }
 
+    // In case we have a path and the target was not
+    // picked at random, we can continue on this path
+    // until the end.
+    if (!m_randomTarget && !info.path.empty()) {
+      return;
+    }
+
     // In case we didn't find anything, pick a target
     // which the average of the position of pheromons
     // for food.
     utils::Point2i avg;
     bool reverse = false;
     if (!aggregatePheromomns(info, items, Scent::Food, avg, reverse)) {
+      // In case we have a valid path, continue on it.
+      if (!info.path.empty()) {
+        return;
+      }
+
+      // Otherwise, determine whether we should reverse
+      // the direction of the ant.
       if (reverse) {
+        log("Relevant food pheromon(s) are behind the ant (out of " + std::to_string(items.size()) + " element(s)), choosing random position", utils::Level::Verbose);
         m_dir = -m_dir;
+        return;
       }
 
-      // No pheromons of this type were found, use a
-      // random target.
-      if (info.path.empty()) {
+      // No pheromons, pick a random location.
+      log("No relevant food pheromon(s) seen by ant (out of " + std::to_string(items.size()) + " element(s)), choosing random position", utils::Level::Verbose);
 
-        log("No relevant food pheromon(s) seen by ant (out of " + std::to_string(items.size()) + " element(s)), choosing random position");
-
-        m_target.reset();
-        generatePath(info);
-      }
+      m_target.reset();
+      generatePath(info);
 
       return;
     }
@@ -262,11 +286,11 @@ namespace cellify {
     // In case the average is the same as the target (which
     // means we didn't find a new pheromon) continue on the
     // same path.
-    if (avg == *m_target) {
+    if (m_target != nullptr && avg == *m_target) {
       return;
     }
 
-    log("Picked target " + avg.toString() + " to wander to from " + std::to_string(items.size()) + " visible item(s)");
+    log("Picked target " + avg.toString() + " to wander to from " + std::to_string(items.size()) + " visible item(s)", utils::Level::Verbose);
 
     m_target = std::make_shared<utils::Point2i>(avg.x(), avg.y());
     generatePath(info);
@@ -330,7 +354,7 @@ namespace cellify {
         return;
       }
 
-      log("Found colony at " + best.toString());
+      log("Found colony at " + best.toString(), utils::Level::Info);
 
       m_target = std::make_shared<utils::Point2i>(best.x(), best.y());
       generatePath(info);
@@ -341,25 +365,38 @@ namespace cellify {
       return;
     }
 
+    /// TODO: Mutualize that in a `target and pheromon` behavior function.
+    // In case we have a path and the target was not
+    // picked at random, we can continue on this path
+    // until the end.
+    if (!m_randomTarget && !info.path.empty()) {
+      return;
+    }
+
     // In case we didn't find anything, pick a target
     // which the average of the position of pheromons
     // for food.
     utils::Point2i avg;
     bool reverse = false;
     if (!aggregatePheromomns(info, items, Scent::Home, avg, reverse)) {
+      // In case we have a valid path, continue on it.
+      if (!info.path.empty()) {
+        return;
+      }
+
+      // Otherwise, determine whether we should reverse
+      // the direction of the ant.
       if (reverse) {
+        log("Relevant home pheromon(s) are behind the ant (out of " + std::to_string(items.size()) + " element(s)), choosing random position", utils::Level::Verbose);
         m_dir = -m_dir;
+        return;
       }
 
-      // No pheromons of this type were found, use a
-      // random target.
-      if (info.path.empty()) {
+      // No pheromons, pick a random location.
+      log("No relevant home pheromon(s) seen by ant (out of " + std::to_string(items.size()) + " element(s)), choosing random position", utils::Level::Verbose);
 
-        log("No relevant home pheromon(s) seen by ant (out of " + std::to_string(items.size()) + " element(s)), choosing random position");
-
-        m_target.reset();
-        generatePath(info);
-      }
+      m_target.reset();
+      generatePath(info);
 
       return;
     }
@@ -367,11 +404,11 @@ namespace cellify {
     // In case the average is the same as the target (which
     // means we didn't find a new pheromon) continue on the
     // same path.
-    if (avg == *m_target) {
+    if (m_target != nullptr && avg == *m_target) {
       return;
     }
 
-    log("Picked target " + avg.toString() + " to return to from " + std::to_string(items.size()) + " visible item(s)");
+    log("Picked target " + avg.toString() + " to return to from " + std::to_string(items.size()) + " visible item(s)", utils::Level::Verbose);
 
     m_target = std::make_shared<utils::Point2i>(avg.x(), avg.y());
     generatePath(info);
@@ -487,7 +524,7 @@ namespace cellify {
       // at our current location.
       utils::Vector2i toPheromon = el->pos() - info.pos;
       float dot = toPheromon * m_dir;
-      if (dot <= 0.0f) {
+      if (dot < 0.0f) {
         continue;
       }
 
@@ -510,6 +547,53 @@ namespace cellify {
 
     out.x() = static_cast<int>(1.0f * std::round(temp.x() / count));
     out.y() = static_cast<int>(1.0f * std::round(temp.y() / count));
+
+    // Check that the picked target is not obstructed: if
+    // yes, then we have to nudge it a bit so that it is
+    // not.
+    if (info.locator.obstructed(out)) {
+      utils::Point2i old = out;
+      // We want to spiral outwards of the point and find
+      // the first point that is not obstructed. The code
+      // to loop in a spiral was taken from here:
+      // https://stackoverflow.com/questions/398299/looping-in-a-spiral
+      int sx = 0;
+      int sy = 0;
+      int d = 1;
+      int m = 1;
+
+      bool ob = true;
+
+      while (ob) {
+        // Move along the `x` axis.
+        while (2 * sx * d < m && ob) {
+          utils::Point2i cur(out.x() + sx, out.y() + sy);
+          ob = info.locator.obstructed(cur);
+
+          if (ob) {
+            sx += d;
+          }
+        }
+
+        // Move along the `y` axis.
+        while (2 * sy * d < m && ob) {
+          utils::Point2i cur(out.x() + sx, out.y() + sy);
+          ob = info.locator.obstructed(cur);
+
+          if (ob) {
+            sy += d;
+          }
+        }
+
+        d = -d;
+        ++m;
+      }
+
+      out.x() += sx;
+      out.y() += sy;
+
+      log("Moved obstructed target " + old.toString() + " to " + out.toString());
+    }
 
     return true;
   }

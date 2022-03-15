@@ -68,6 +68,12 @@ namespace cellify {
       influence(const Influence* inf,
                 const Element* body) noexcept override;
 
+    protected:
+
+      void
+      log(const std::string& message,
+          const utils::Level& level = utils::Level::Debug) const noexcept override;
+
     private:
 
       /**
@@ -181,6 +187,15 @@ namespace cellify {
        *          one.
        */
       OptTarget m_target;
+
+      /**
+       * @brief - The origin of the target: whether it was picked
+       *          at random or through pheromons aggregation. It
+       *          is unused in case of a behavior which picks a
+       *          target based on a location (such as the food or
+       *          deposit behavior).
+       */
+      bool m_randomTarget;
 
       /**
        * @brief - The last position of the ant. Allows to compute
