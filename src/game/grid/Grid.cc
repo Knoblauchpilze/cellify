@@ -14,7 +14,7 @@
 # define FOOD_DEPOSITS_COUNT 4
 
 /// @brief - The amount of food in deposits.
-# define FOOD_STOCK 5.0f
+# define FOOD_STOCK 50.0f
 
 /// @brief - The dimensions of the initial walls.
 # define WALL_LENGTH 6
@@ -177,7 +177,7 @@ namespace cellify {
     log(
       "Spawning agent with type " + tileToString(elem->type()) +
       " at " + elem->pos().toString(),
-      utils::Level::Info
+      utils::Level::Verbose
     );
 
     m_cells.push_back(elem);
@@ -201,7 +201,7 @@ namespace cellify {
     );
 
     if (sz != m_cells.size()) {
-      log("Removed " + std::to_string(sz - m_cells.size()) + " agent(s)");
+      log("Removed " + std::to_string(sz - m_cells.size()) + " agent(s)", utils::Level::Verbose);
     }
   }
 

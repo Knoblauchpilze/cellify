@@ -56,7 +56,7 @@ namespace cellify {
     }
 
     float a = fi->amount(body);
-    log("Adding " + std::to_string(a) + " to budget of colony (current: " + std::to_string(m_budget) + ")", utils::Level::Info);
+    log("Adding " + std::to_string(a) + " to budget of colony (current: " + std::to_string(m_budget + a) + ")", utils::Level::Info);
 
     m_budget += a;
 

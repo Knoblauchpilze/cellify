@@ -43,11 +43,11 @@ namespace cellify {
 
     float a = fi->amount(body);
     if (a > 0.0f) {
-      log("Piled up " + std::to_string(a) + " food", utils::Level::Info);
+      log("Piled up " + std::to_string(a) + " food (" + std::to_string(m_stock) + " available)", utils::Level::Info);
     }
     else {
       log(
-        "Withdrew " + std::to_string(-a) + " food (" + std::to_string(m_stock) +
+        "Withdrew " + std::to_string(-a) + " food (" + std::to_string(m_stock + a) +
         " remaining)",
         utils::Level::Info
       );
