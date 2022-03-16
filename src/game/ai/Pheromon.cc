@@ -51,8 +51,6 @@ namespace cellify {
     if (m_amount <= 0.0f) {
       info.selfDestruct = true;
     }
-
-    /// TODO: Include some spreading of the pheromons ?
   }
 
   bool

@@ -165,6 +165,24 @@ namespace cellify {
                           utils::Point2i& out,
                           bool& reverse) const noexcept;
 
+      /**
+       * @brief - Used to perform a behavior which follows the
+       *          pheromon with the specified scent until it can
+       *          reach a target of the input type.
+       * @param info - info about the step.
+       * @param items - the list of visible items.
+       * @param scent - the scent to follow.
+       * @param tile - the tile to reach.
+       * @param next - the next behavior to trigger when the `tile`
+       *               is finally reached.
+       */
+      void
+      followPheromonToTarget(Info& info,
+                             const std::vector<int>& items,
+                             const Scent& scent,
+                             const Tile& tile,
+                             const Behavior& next);
+
     private:
 
       /// @brief - Convenience representation of an optional target.

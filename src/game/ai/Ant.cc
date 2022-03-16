@@ -231,72 +231,7 @@ namespace cellify {
 
   void
   Ant::wander(Info& info, const std::vector<int>& items) {
-    // Check for for food sources and find the closest one.
-    utils::Point2i best;
-    if (findClosest(info, items, Tile::Food, best)) {
-      // In case the path is not yet directed towards
-      // this colony, generate a new path.
-      if (!info.path.empty() && info.path.end() == best) {
-        return;
-      }
-
-      log("Found food source at " + best.toString(), utils::Level::Verbose);
-
-      m_target = std::make_shared<utils::Point2i>(best.x(), best.y());
-      generatePath(info);
-
-      // Update the behavior.
-      m_behavior = Behavior::Food;
-
-      return;
-    }
-
-    // In case we have a path and the target was not
-    // picked at random, we can continue on this path
-    // until the end.
-    if (!m_randomTarget && !info.path.empty()) {
-      return;
-    }
-
-    // In case we didn't find anything, pick a target
-    // which the average of the position of pheromons
-    // for food.
-    utils::Point2i avg;
-    bool reverse = false;
-    if (!aggregatePheromomns(info, items, Scent::Food, avg, reverse)) {
-      // In case we have a valid path, continue on it.
-      if (!info.path.empty()) {
-        return;
-      }
-
-      // Otherwise, determine whether we should reverse
-      // the direction of the ant.
-      if (reverse) {
-        log("Relevant food pheromon(s) are behind the ant (out of " + std::to_string(items.size()) + " element(s)), choosing random position", utils::Level::Verbose);
-        m_dir = -m_dir;
-        return;
-      }
-
-      // No pheromons, pick a random location.
-      log("No relevant food pheromon(s) seen by ant (out of " + std::to_string(items.size()) + " element(s)), choosing random position", utils::Level::Verbose);
-
-      m_target.reset();
-      generatePath(info);
-
-      return;
-    }
-
-    // In case the average is the same as the target (which
-    // means we didn't find a new pheromon) continue on the
-    // same path.
-    if (m_target != nullptr && avg == *m_target) {
-      return;
-    }
-
-    log("Picked target " + avg.toString() + " to wander to from " + std::to_string(items.size()) + " visible item(s)", utils::Level::Verbose);
-
-    m_target = std::make_shared<utils::Point2i>(avg.x(), avg.y());
-    generatePath(info);
+    followPheromonToTarget(info, items, Scent::Food, Tile::Food, Behavior::Food);
   }
 
   void
@@ -356,73 +291,7 @@ namespace cellify {
 
   void
   Ant::returnHome(Info& info, const std::vector<int>& items) {
-    // Check for for colonies and find the closest one.
-    utils::Point2i best;
-    if (findClosest(info, items, Tile::Colony, best)) {
-      // In case the path is not yet directed towards
-      // this colony, generate a new path.
-      if (!info.path.empty() && info.path.end() == best) {
-        return;
-      }
-
-      log("Found colony at " + best.toString(), utils::Level::Verbose);
-
-      m_target = std::make_shared<utils::Point2i>(best.x(), best.y());
-      generatePath(info);
-
-      // Update the behavior.
-      m_behavior = Behavior::Deposit;
-
-      return;
-    }
-
-    /// TODO: Mutualize that in a `target and pheromon` behavior function.
-    // In case we have a path and the target was not
-    // picked at random, we can continue on this path
-    // until the end.
-    if (!m_randomTarget && !info.path.empty()) {
-      return;
-    }
-
-    // In case we didn't find anything, pick a target
-    // which the average of the position of pheromons
-    // for food.
-    utils::Point2i avg;
-    bool reverse = false;
-    if (!aggregatePheromomns(info, items, Scent::Home, avg, reverse)) {
-      // In case we have a valid path, continue on it.
-      if (!info.path.empty()) {
-        return;
-      }
-
-      // Otherwise, determine whether we should reverse
-      // the direction of the ant.
-      if (reverse) {
-        log("Relevant home pheromon(s) are behind the ant (out of " + std::to_string(items.size()) + " element(s)), choosing random position", utils::Level::Verbose);
-        m_dir = -m_dir;
-        return;
-      }
-
-      // No pheromons, pick a random location.
-      log("No relevant home pheromon(s) seen by ant (out of " + std::to_string(items.size()) + " element(s)), choosing random position", utils::Level::Verbose);
-
-      m_target.reset();
-      generatePath(info);
-
-      return;
-    }
-
-    // In case the average is the same as the target (which
-    // means we didn't find a new pheromon) continue on the
-    // same path.
-    if (m_target != nullptr && avg == *m_target) {
-      return;
-    }
-
-    log("Picked target " + avg.toString() + " to return to from " + std::to_string(items.size()) + " visible item(s)", utils::Level::Verbose);
-
-    m_target = std::make_shared<utils::Point2i>(avg.x(), avg.y());
-    generatePath(info);
+    followPheromonToTarget(info, items, Scent::Home, Tile::Colony, Behavior::Deposit);
   }
 
   void
@@ -607,6 +476,81 @@ namespace cellify {
     }
 
     return true;
+  }
+
+  void
+  Ant::followPheromonToTarget(Info& info,
+                              const std::vector<int>& items,
+                              const Scent& scent,
+                              const Tile& tile,
+                              const Behavior& next)
+  {
+    // Check for for colonies and find the closest one.
+    utils::Point2i best;
+    if (findClosest(info, items, tile, best)) {
+      // In case the path is not yet directed towards
+      // this colony, generate a new path.
+      if (!info.path.empty() && info.path.end() == best) {
+        return;
+      }
+
+      log("Found " + tileToString(tile) + " at " + best.toString(), utils::Level::Verbose);
+
+      m_target = std::make_shared<utils::Point2i>(best.x(), best.y());
+      generatePath(info);
+
+      // Update the behavior.
+      m_behavior = next;
+
+      return;
+    }
+
+    // In case we have a path and the target was not
+    // picked at random, we can continue on this path
+    // until the end.
+    if (!m_randomTarget && !info.path.empty()) {
+      return;
+    }
+
+    // In case we didn't find anything, pick a target
+    // which the average of the position of pheromons
+    // for food.
+    utils::Point2i avg;
+    bool reverse = false;
+    if (!aggregatePheromomns(info, items, scent, avg, reverse)) {
+      // In case we have a valid path, continue on it.
+      if (!info.path.empty()) {
+        return;
+      }
+
+      // Otherwise, determine whether we should reverse
+      // the direction of the ant.
+      if (reverse) {
+        log("Relevant " + scentToString(scent) + " pheromon(s) are behind the ant (out of " + std::to_string(items.size()) + " element(s)), choosing random position", utils::Level::Verbose);
+        m_dir = -m_dir;
+        return;
+      }
+
+      // No pheromons, pick a random location.
+      log("No relevant " + scentToString(scent) + " pheromon(s) seen by ant (out of " + std::to_string(items.size()) + " element(s)), choosing random position", utils::Level::Verbose);
+
+      m_target.reset();
+      generatePath(info);
+
+      return;
+    }
+
+    // In case the average is the same as the target (which
+    // means we didn't find a new pheromon) continue on the
+    // same path.
+    if (m_target != nullptr && avg == *m_target) {
+      return;
+    }
+
+    log("Picked target " + avg.toString() + " to return to from " + std::to_string(items.size()) + " visible item(s)", utils::Level::Verbose);
+
+    m_target = std::make_shared<utils::Point2i>(avg.x(), avg.y());
+    generatePath(info);
   }
 
 }

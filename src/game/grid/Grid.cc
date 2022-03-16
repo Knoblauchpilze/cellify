@@ -75,7 +75,6 @@ namespace cellify {
 
   Indices
   Grid::at(int x, int y, bool includeNonSolid) const noexcept {
-    /// TODO: Optimize the search for elements.
     Indices out;
 
     unsigned id = 0u;
