@@ -26,6 +26,23 @@ In the application, the world is composed of several elements.
 
 ## General scheduling
 
+The application is built around the [Pixel Game Engine](https://github.com/OneLoneCoder/olcPixelGameEngine). This engine schedules all the processing in one loop and calls the update function at each frame.
+
+### World
+
+We used this scheduling to perform the update of the world. We manage an internal timestamp which provides the time elasped since the beginning of the simulation. We can very easily change the speed of the simulation with this approach. It could technically also be used to rollback to an anterior state (even if not implemented yet).
+
+During each update, the process it to cycle through the elements registered in the world and collect their influences. Each element is executed one after the other and is guaranteed to be called once per frame.
+
+After the update of the elements, we process the influences. This includes:
+* spawning new agents.
+* deleting ones marked for self-destruction.
+* perform update of elements based on influences.
+
+### UI
+
+The game can also be in a paused or active state. None of the menus will be active when the game is paused. The update of the world based on the user update happens before the execution of the frame.
+
 ## Obstacle
 
 Prevents anything from going through it. This can be used to direct the motion of agents for example.
