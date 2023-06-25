@@ -132,7 +132,7 @@ namespace cellify {
       return false;
     }
 
-    // Check whether the path goes beyong the input
+    // Check whether the path goes beyond the input
     // limit at any point: if this is the case we
     // will prevent it from being returned as we do
     // not consider it valid.
