@@ -19,7 +19,7 @@ namespace cellify {
     // In case we don't have a valid stock, we have
     // to self-destruct.
     if (m_stock <= 0.0f) {
-      log("Deposit " + info.pos.toString() + " is now empty", utils::Level::Info);
+      this->info("Deposit " + info.pos.toString() + " is now empty");
       info.selfDestruct = true;
     }
   }
@@ -43,13 +43,12 @@ namespace cellify {
 
     float a = fi->amount(body);
     if (a > 0.0f) {
-      log("Piled up " + std::to_string(a) + " food (" + std::to_string(m_stock) + " available)", utils::Level::Info);
+      info("Piled up " + std::to_string(a) + " food (" + std::to_string(m_stock) + " available)");
     }
     else {
-      log(
+      info(
         "Withdrew " + std::to_string(-a) + " food (" + std::to_string(m_stock + a) +
-        " remaining)",
-        utils::Level::Info
+        " remaining)"
       );
     }
 

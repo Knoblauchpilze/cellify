@@ -64,7 +64,7 @@ namespace pge {
     }
 
     if (!m_game->step(fElapsed)) {
-      log("This is game over", utils::Level::Info);
+      info("This is game over");
     }
 
     return m_game->terminated();
@@ -113,7 +113,7 @@ namespace pge {
 
   void
   App::loadData() {
-    log("Load app data as needed", utils::Level::Info);
+    info("Load app data as needed");
 
     // Create the game and its state.
     m_game = std::make_shared<Game>(m_world);
@@ -134,7 +134,7 @@ namespace pge {
     // for now to achieve it.
     setLayerTint(Layer::Draw, olc::Pixel(255, 255, 255, alpha::SemiOpaque));
 
-    log("Load app resources in the 'm_packs' attribute", utils::Level::Info);
+    info("Load app resources in the 'm_packs' attribute");
   }
 
   void

@@ -148,10 +148,9 @@ namespace pge {
     // Note that this might cause issue in case the
     // child already has a parent.
     if (child->m_parent != nullptr) {
-      log(
+      warn(
         "Reparenting menu \"" + child->getName() + "\" from \"" +
-        child->m_parent->getName() + "\"",
-        utils::Level::Warning
+        child->m_parent->getName() + "\""
       );
     }
 
@@ -389,12 +388,11 @@ namespace pge {
     }
 
     if (expandableSize < 0) {
-      log(
+      warn(
         "Menu has " + std::to_string(m_children.size()) + " child(ren)" +
         " occpupying " + std::to_string(i - expandableSize) +
         " but menu is only " + std::to_string(i) +
-        ", truncation will occur",
-        utils::Level::Warning
+        ", truncation will occur"
       );
 
       expandableSize = 0;

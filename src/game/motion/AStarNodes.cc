@@ -64,13 +64,12 @@ namespace cellify {
       anc->second = std::make_pair(pHash, child.cost());
 
       if (allowLog) {
-        log(
+        verbose(
           "Updating " + std::to_string(child.p().x()) + "x" + std::to_string(child.p().y()) +
           " from (c " + std::to_string(anc->second.second) +
           " parent: " + anc->first + ")" +
           " to (c: " + std::to_string(child.cost()) +
-          " parent is " + pHash + ")",
-          utils::Level::Verbose
+          " parent is " + pHash + ")"
         );
       }
     }
@@ -117,11 +116,10 @@ namespace cellify {
       utils::Point2i p = unhash(h);
 
       if (allowLog) {
-        log(
+        verbose(
           "Registering point " + std::to_string(p.x()) + "x" + std::to_string(p.y()) +
           " with hash " + h +
-          ", parent is " + it->second.first,
-          utils::Level::Verbose
+          ", parent is " + it->second.first
         );
       }
 

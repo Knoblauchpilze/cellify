@@ -59,10 +59,9 @@ namespace cellify {
     path.clear();
 
     if (allowLog) {
-      log(
+      verbose(
         "Starting a* at " + std::to_string(m_start.x()) + "x" + std::to_string(m_start.y()) +
-        " to reach " + std::to_string(m_end.x()) + "x" + std::to_string(m_end.y()),
-        utils::Level::Verbose
+        " to reach " + std::to_string(m_end.x()) + "x" + std::to_string(m_end.y())
       );
     }
 
@@ -75,12 +74,11 @@ namespace cellify {
       Node current = nodes.pickBest(true);
 
       if (allowLog) {
-        log(
+        verbose(
           "Picked node " + std::to_string(current.p().x()) + "x" + std::to_string(current.p().y()) +
           " with c " + std::to_string(current.cost()) +
           " h is " + std::to_string(current.heuristic()) +
-          " (nodes: " + std::to_string(nodes.opened()) + ")",
-          utils::Level::Verbose
+          " (nodes: " + std::to_string(nodes.opened()) + ")"
         );
       }
 

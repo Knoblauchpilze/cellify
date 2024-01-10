@@ -164,7 +164,7 @@ namespace cellify {
     if (elem->type() == Tile::Food || elem->type() == Tile::Colony || elem->type() == Tile::Obstacle) {
       Indices ids = at(elem->pos().x(), elem->pos().y());
       if (!ids.empty()) {
-        log(
+        debug(
           "Preventing insertion of " + tileToString(elem->type()) +
           " at " + elem->pos().toString() + ", already containing an element"
         );
@@ -173,10 +173,9 @@ namespace cellify {
       }
     }
 
-    log(
+    verbose(
       "Spawning agent with type " + tileToString(elem->type()) +
-      " at " + elem->pos().toString(),
-      utils::Level::Verbose
+      " at " + elem->pos().toString()
     );
 
     m_cells.push_back(elem);
@@ -200,7 +199,7 @@ namespace cellify {
     );
 
     if (sz != m_cells.size()) {
-      log("Removed " + std::to_string(sz - m_cells.size()) + " agent(s)", utils::Level::Verbose);
+      verbose("Removed " + std::to_string(sz - m_cells.size()) + " agent(s)");
     }
   }
 

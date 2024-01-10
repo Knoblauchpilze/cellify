@@ -153,10 +153,10 @@ namespace cellify {
 
     float a = fi->amount(body);
     if (a > 0.0f) {
-      log("Gathered " + std::to_string(a) + " food", utils::Level::Debug);
+      debug("Gathered " + std::to_string(a) + " food");
     }
     else {
-      log("Deposit " + std::to_string(-a) + " food", utils::Level::Debug);
+      debug("Deposit " + std::to_string(-a) + " food");
     }
 
     m_food += a;
@@ -165,12 +165,10 @@ namespace cellify {
   }
 
   void
-  Ant::log(const std::string& message,
-           const utils::Level& level) const noexcept
+  Ant::log(const std::string& message) const noexcept
   {
-    // Helps with debugging by prepending the behavior
-    // to any log.
-    AI::log("[" + behaviorToString(m_behavior) + "] " + message, level);
+    // Helps with debugging by prepending the behavior to any log.
+    verbose("[" + behaviorToString(m_behavior) + "] " + message);
   }
 
   bool
@@ -192,7 +190,7 @@ namespace cellify {
     }
 
     if (ok) {
-      log("Moving from " + info.path.begin().toString() + " to " + info.path.end().toString(), utils::Level::Verbose);
+      log("Moving from " + info.path.begin().toString() + " to " + info.path.end().toString());
     }
 
     return ok;
@@ -283,7 +281,7 @@ namespace cellify {
       deposit, ANT_CARGO_SPACE, body
     ));
 
-    log("Reached food at " + info.pos.toString() + ", going back home", utils::Level::Verbose);
+    log("Reached food at " + info.pos.toString() + ", going back home");
 
     // And change the behavior.
     m_behavior = Behavior::Return;
@@ -332,7 +330,7 @@ namespace cellify {
       body, ANT_CARGO_SPACE, colony
     ));
 
-    log("Reached colony at " + info.pos.toString() + ", going back to wander", utils::Level::Verbose);
+    log("Reached colony at " + info.pos.toString() + ", going back to wander");
 
     // And change the behavior.
     m_behavior = Behavior::Wander;
@@ -472,7 +470,7 @@ namespace cellify {
       out.x() += sx;
       out.y() += sy;
 
-      log("Moved obstructed target " + old.toString() + " to " + out.toString(), utils::Level::Verbose);
+      log("Moved obstructed target " + old.toString() + " to " + out.toString());
     }
 
     return true;
@@ -494,7 +492,7 @@ namespace cellify {
         return;
       }
 
-      log("Found " + tileToString(tile) + " at " + best.toString(), utils::Level::Verbose);
+      log("Found " + tileToString(tile) + " at " + best.toString());
 
       m_target = std::make_shared<utils::Point2i>(best.x(), best.y());
       generatePath(info);
@@ -526,13 +524,13 @@ namespace cellify {
       // Otherwise, determine whether we should reverse
       // the direction of the ant.
       if (reverse) {
-        log("Relevant " + scentToString(scent) + " pheromon(s) are behind the ant (out of " + std::to_string(items.size()) + " element(s)), choosing random position", utils::Level::Verbose);
+        log("Relevant " + scentToString(scent) + " pheromon(s) are behind the ant (out of " + std::to_string(items.size()) + " element(s)), choosing random position");
         m_dir = -m_dir;
         return;
       }
 
       // No pheromons, pick a random location.
-      log("No relevant " + scentToString(scent) + " pheromon(s) seen by ant (out of " + std::to_string(items.size()) + " element(s)), choosing random position", utils::Level::Verbose);
+      log("No relevant " + scentToString(scent) + " pheromon(s) seen by ant (out of " + std::to_string(items.size()) + " element(s)), choosing random position");
 
       m_target.reset();
       generatePath(info);
@@ -547,7 +545,7 @@ namespace cellify {
       return;
     }
 
-    log("Picked target " + avg.toString() + " to return to from " + std::to_string(items.size()) + " visible item(s)", utils::Level::Verbose);
+    log("Picked target " + avg.toString() + " to return to from " + std::to_string(items.size()) + " visible item(s)");
 
     m_target = std::make_shared<utils::Point2i>(avg.x(), avg.y());
     generatePath(info);

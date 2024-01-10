@@ -124,7 +124,7 @@ namespace pge {
   Game::performAction(float x, float y) {
     // Only handle actions when the game is not disabled.
     if (m_state.disabled) {
-      log("Ignoring action while menu is disabled");
+      debug("Ignoring action while menu is disabled");
       return;
     }
 
@@ -171,10 +171,10 @@ namespace pge {
     m_state.disabled = !enable;
 
     if (m_state.disabled) {
-      log("Disabled game UI", utils::Level::Verbose);
+      verbose("Disabled game UI");
     }
     else {
-      log("Enabled game UI", utils::Level::Verbose);
+      verbose("Enabled game UI");
     }
   }
 
@@ -192,16 +192,15 @@ namespace pge {
       m_state.speed = 1.0f;
     }
 
-    log(
+    info(
       "Simulation speed updated from " + std::to_string(s) +
-      " to " + std::to_string(m_state.speed),
-      utils::Level::Info
+      " to " + std::to_string(m_state.speed)
     );
   }
 
   void
   Game::setItemToAdd(const cellify::Tile& tile) noexcept {
-    log("Activated " + cellify::tileToString(tile) + " item to be placed in the world", utils::Level::Info);
+    info("Activated " + cellify::tileToString(tile) + " item to be placed in the world");
 
     m_itemToAdd = tile;
   }

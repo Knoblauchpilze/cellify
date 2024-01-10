@@ -71,8 +71,7 @@ namespace cellify {
     protected:
 
       void
-      log(const std::string& message,
-          const utils::Level& level = utils::Level::Debug) const noexcept override;
+      log(const std::string& message) const noexcept;
 
     private:
 

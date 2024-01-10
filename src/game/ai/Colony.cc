@@ -56,7 +56,7 @@ namespace cellify {
     }
 
     float a = fi->amount(body);
-    log("Adding " + std::to_string(a) + " to budget of colony (current: " + std::to_string(m_budget + a) + ")", utils::Level::Info);
+    info("Adding " + std::to_string(a) + " to budget of colony (current: " + std::to_string(m_budget + a) + ")");
 
     m_budget += a;
 
@@ -88,10 +88,9 @@ namespace cellify {
 
     info.spawned.push_back(Animat{p, brain});
 
-    log(
+    verbose(
       "Registering spawn attempt at " + p.toString() +
-      " (budget: " + std::to_string(m_budget) + "/" + std::to_string(m_antCost) + ")",
-      utils::Level::Verbose
+      " (budget: " + std::to_string(m_budget) + "/" + std::to_string(m_antCost) + ")"
      );
 
     // Update spawn tracking variables.
